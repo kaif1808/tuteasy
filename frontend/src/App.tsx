@@ -5,6 +5,7 @@ import { Register } from './pages/Register';
 import { ForgotPassword } from './pages/ForgotPassword';
 import { ResetPassword } from './pages/ResetPassword';
 import { VerifyEmailNotice } from './pages/VerifyEmailNotice';
+import { VerifyEmail } from './pages/VerifyEmail';
 import { Dashboard } from './pages/Dashboard';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { useAuthStore } from './stores/authStore';
@@ -31,6 +32,7 @@ function App() {
           />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/verify-email-notice" element={<VerifyEmailNotice />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
           
           {/* Protected routes */}
           <Route 

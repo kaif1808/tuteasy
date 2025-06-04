@@ -40,6 +40,11 @@ const envSchema = z.object({
   MAX_FILE_SIZE_MB: z.string().default('10').transform(Number),
   ALLOWED_IMAGE_TYPES: z.string().default('image/jpeg,image/png,image/webp'),
   ALLOWED_DOCUMENT_TYPES: z.string().default('application/pdf'),
+  
+  // Email (SendGrid)
+  SENDGRID_API_KEY: z.string().optional(),
+  SENDGRID_FROM_EMAIL: z.string().email().default('noreply@tuteasy.com'),
+  FRONTEND_URL: z.string().url().default('http://localhost:5173'),
 });
 
 // Parse and validate environment variables
@@ -87,6 +92,13 @@ export const config = {
     maxFileSizeMB: parsedEnv.data.MAX_FILE_SIZE_MB,
     allowedImageTypes: parsedEnv.data.ALLOWED_IMAGE_TYPES.split(','),
     allowedDocumentTypes: parsedEnv.data.ALLOWED_DOCUMENT_TYPES.split(','),
+  },
+  sendgrid: {
+    apiKey: parsedEnv.data.SENDGRID_API_KEY,
+    fromEmail: parsedEnv.data.SENDGRID_FROM_EMAIL,
+  },
+  frontend: {
+    url: parsedEnv.data.FRONTEND_URL,
   },
   isDevelopment: parsedEnv.data.NODE_ENV === 'development',
   isProduction: parsedEnv.data.NODE_ENV === 'production',

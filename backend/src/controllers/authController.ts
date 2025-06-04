@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { AuthService } from '../services/authService';
+import { EmailService } from '../services/emailService';
 import {
   RegisterInput,
   LoginInput,
@@ -19,8 +20,15 @@ export class AuthController {
     try {
       const { user, accessToken, refreshToken } = await AuthService.register(req.body);
 
-      // TODO: Send verification email
-      // await EmailService.sendVerificationEmail(user.email, user.emailVerificationToken);
+      // Send verification email
+      if ((user as any).emailVerificationToken) {
+        try {
+          await EmailService.sendVerificationEmail(user.email, (user as any).emailVerificationToken);
+        } catch (emailError) {
+          console.error('Failed to send verification email:', emailError);
+          // Don't fail registration if email fails
+        }
+      }
 
       res.status(201).json({
         message: 'Registration successful. Please check your email to verify your account.',
@@ -90,6 +98,14 @@ export class AuthController {
       const { token } = req.query;
       const user = await AuthService.verifyEmail(token);
 
+      // Send welcome email after successful verification
+      try {
+        await EmailService.sendWelcomeEmail(user.email, user.role);
+      } catch (emailError) {
+        console.error('Failed to send welcome email:', emailError);
+        // Don't fail verification if welcome email fails
+      }
+
       res.json({
         message: 'Email verified successfully',
         data: {
@@ -118,8 +134,15 @@ export class AuthController {
       const { email } = req.body;
       const user = await AuthService.requestPasswordReset(email);
 
-      // TODO: Send password reset email
-      // await EmailService.sendPasswordResetEmail(user.email, user.passwordResetToken);
+      // Send password reset email
+      if ((user as any).passwordResetToken) {
+        try {
+          await EmailService.sendPasswordResetEmail(user.email, (user as any).passwordResetToken);
+        } catch (emailError) {
+          console.error('Failed to send password reset email:', emailError);
+          // Don't fail the request if email fails
+        }
+      }
 
       res.json({
         message: 'If a user with this email exists, a password reset link has been sent',
