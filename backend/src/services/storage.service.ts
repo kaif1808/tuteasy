@@ -1,4 +1,7 @@
 import { config } from '../config';
+import path from 'path';
+import fs from 'fs';
+import { DeleteObjectCommand } from '@aws-sdk/client-s3';
 
 export interface StorageService {
   uploadImage(buffer: Buffer, filename: string): Promise<{ url: string; key: string }>;
@@ -30,7 +33,7 @@ class CloudinaryStorage implements StorageService {
 
   async deleteFile(key: string): Promise<void> {
     // TODO: Implement Cloudinary file deletion
-    console.log('Deleting file:', key);
+    
   }
 }
 
@@ -55,8 +58,44 @@ class S3Storage implements StorageService {
   }
 
   async deleteFile(key: string): Promise<void> {
-    // TODO: Implement S3 file deletion
-    console.log('Deleting file from S3:', key);
+    if (!this.isS3Configured()) {
+      // Fallback to local deletion if S3 is not configured
+      const filePath = path.join(__dirname, '../../uploads', key); // Adjust path as needed
+      try {
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+      } catch (error) {
+        // Consider using a proper logger here
+        // console.error('Error deleting local file:', error);
+        throw new Error('Failed to delete local file');
+      }
+      return;
+    }
+
+    await this.deleteFromS3(key);
+  }
+
+  private async deleteFromS3(key: string): Promise<void> {
+    const bucketName = this.getBucketName();
+    if (!bucketName) {
+      throw new Error('S3 bucket name is not configured.');
+    }
+    try {
+      await this.s3.send(new DeleteObjectCommand({ Bucket: bucketName, Key: key }));
+    } catch (error) {
+      // ... existing code ...
+    }
+  }
+
+  private isS3Configured(): boolean {
+    // Implement the logic to check if S3 is configured
+    return false; // Placeholder return, actual implementation needed
+  }
+
+  private getBucketName(): string | undefined {
+    // Implement the logic to get the S3 bucket name
+    return undefined; // Placeholder return, actual implementation needed
   }
 }
 

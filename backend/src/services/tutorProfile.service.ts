@@ -158,8 +158,8 @@ export class TutorProfileService {
   }
 
   // Helper method to calculate profile completeness
-  private calculateProfileCompleteness(data: any): number {
-    const fields = [
+  private calculateProfileCompleteness(data: z.infer<typeof updateTutorProfileSchema>): number {
+    const fieldsToCheck: Array<keyof z.infer<typeof updateTutorProfileSchema>> = [
       'bio',
       'hourlyRateMin',
       'hourlyRateMax',
@@ -168,12 +168,20 @@ export class TutorProfileService {
       'languageProficiencies',
     ];
 
-    const filledFields = fields.filter(field => 
-      data[field] !== undefined && 
-      data[field] !== null && 
-      (Array.isArray(data[field]) ? data[field].length > 0 : true)
-    );
+    let filledFieldsCount = 0;
+    for (const key of fieldsToCheck) {
+      const value = data[key];
+      if (value !== undefined && value !== null) {
+        if (Array.isArray(value)) {
+          if (value.length > 0) {
+            filledFieldsCount++;
+          }
+        } else {
+          filledFieldsCount++;
+        }
+      }
+    }
 
-    return Math.round((filledFields.length / fields.length) * 100);
+    return Math.round((filledFieldsCount / fieldsToCheck.length) * 100);
   }
 } 

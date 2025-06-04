@@ -1,7 +1,12 @@
-import axios, { type AxiosError, type AxiosInstance } from 'axios';
+import axios, { type AxiosError, type AxiosInstance, type InternalAxiosRequestConfig, AxiosHeaders } from 'axios';
 import { useAuthStore } from '../stores/authStore';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+// Define a custom request config type that includes _retry
+interface RetryAxiosRequestConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+}
 
 // Create axios instance
 export const api: AxiosInstance = axios.create({
@@ -30,7 +35,11 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const originalRequest = error.config as any;
+    const originalRequest = error.config as RetryAxiosRequestConfig;
+
+    if (!originalRequest) {
+      return Promise.reject(error);
+    }
     
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
@@ -46,10 +55,12 @@ api.interceptors.response.use(
           const { accessToken, refreshToken: newRefreshToken } = response.data.data;
           useAuthStore.getState().updateTokens(accessToken, newRefreshToken);
           
-          // Retry original request with new token
-          if (originalRequest.headers) {
-            originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+          // Ensure headers exist on originalRequest before setting Authorization
+          if (!originalRequest.headers) {
+            originalRequest.headers = new AxiosHeaders();
           }
+          originalRequest.headers.set('Authorization', `Bearer ${accessToken}`);
+          
           return api(originalRequest);
         } catch (refreshError) {
           // Refresh failed, logout user
@@ -69,9 +80,13 @@ api.interceptors.response.use(
 );
 
 // Helper function to extract error message
-export const getErrorMessage = (error: any): string => {
+export const getErrorMessage = (error: unknown): string => {
   if (axios.isAxiosError(error)) {
-    return error.response?.data?.error || error.message || 'An error occurred';
+    // error is now AxiosError
+    return error.response?.data?.error || error.message || 'An unknown error occurred';
   }
-  return error.message || 'An error occurred';
+  if (error instanceof Error) {
+    return error.message || 'An unknown error occurred';
+  }
+  return 'An unknown error occurred';
 }; 

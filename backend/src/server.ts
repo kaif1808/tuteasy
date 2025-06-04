@@ -5,6 +5,7 @@ import rateLimit from 'express-rate-limit';
 import { config } from './config';
 import tutorProfileRoutes from './routes/tutorProfile.routes';
 import authRoutes from './routes/authRoutes';
+import { ZodError } from 'zod';
 
 const app = express();
 
@@ -46,20 +47,24 @@ app.use('/api/auth', authRoutes);
 app.use('/api/tutors', tutorProfileRoutes);
 
 // Error handling middleware
-app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error('Error:', err);
   
+  if (err instanceof ZodError) {
+    res.status(400).json({ 
+      error: 'Validation error', 
+      details: err.errors.map(e => ({ message: e.message, path: e.path })) 
+    });
+    return;
+  }
+
   if (err.name === 'UnauthorizedError') {
     res.status(401).json({ error: 'Unauthorized' });
     return;
   }
   
-  if (err.name === 'ValidationError') {
-    res.status(400).json({ error: 'Validation error', details: err.details });
-    return;
-  }
-  
-  res.status(500).json({ error: 'Internal server error' });
+  const statusCode = (err as any).statusCode || 500;
+  res.status(statusCode).json({ error: err.message || 'Internal server error' });
 });
 
 // 404 handler
