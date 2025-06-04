@@ -1,0 +1,158 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User authentication and roles
+model User {
+  id                String    @id @default(uuid())
+  email             String    @unique
+  password          String
+  role              UserRole  @default(TUTOR)
+  isEmailVerified   Boolean   @default(false)
+  emailVerifiedAt   DateTime?
+  lastLoginAt       DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  tutor             Tutor?
+  refreshTokens     RefreshToken[]
+
+  @@index([email])
+}
+
+enum UserRole {
+  ADMIN
+  TUTOR
+  STUDENT
+  PARENT
+}
+
+model RefreshToken {
+  id          String   @id @default(uuid())
+  token       String   @unique
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([token])
+}
+
+// Tutor profile management
+model Tutor {
+  id                  String              @id @default(uuid())
+  userId              String              @unique
+  user                User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Basic information
+  bio                 String?             @db.Text
+  hourlyRateMin       Decimal?            @db.Decimal(8, 2)
+  hourlyRateMax       Decimal?            @db.Decimal(8, 2)
+  profileImageUrl     String?
+  profileImageKey     String?             // For S3/Cloudinary deletion
+  videoIntroUrl       String?
+  videoIntroKey       String?             // For S3/Cloudinary deletion
+  
+  // Professional settings
+  teachingPreference  TeachingPreference  @default(BOTH)
+  ageGroupSpecialization String[]         @default([])
+  languageProficiencies String[]          @default([])
+  
+  // Status
+  verificationStatus  VerificationStatus  @default(PENDING)
+  isActive            Boolean             @default(true)
+  profileCompleteness Int                 @default(0) // Percentage 0-100
+  
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  // Relations
+  subjects            TutorSubject[]
+  qualifications      TutorQualification[]
+
+  @@index([userId])
+  @@index([verificationStatus])
+  @@index([isActive])
+}
+
+enum TeachingPreference {
+  ONLINE
+  IN_PERSON
+  BOTH
+}
+
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+// Tutor subjects with proficiency levels
+model TutorSubject {
+  id               String            @id @default(uuid())
+  tutorId          String
+  tutor            Tutor             @relation(fields: [tutorId], references: [id], onDelete: Cascade)
+  
+  subjectName      String
+  proficiencyLevel ProficiencyLevel  @default(INTERMEDIATE)
+  yearsExperience  Int               @default(0)
+  hourlyRate       Decimal?          @db.Decimal(8, 2) // Subject-specific rate
+  
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@unique([tutorId, subjectName])
+  @@index([tutorId])
+}
+
+enum ProficiencyLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+// Tutor qualifications and credentials
+model TutorQualification {
+  id                  String              @id @default(uuid())
+  tutorId             String
+  tutor               Tutor               @relation(fields: [tutorId], references: [id], onDelete: Cascade)
+  
+  qualificationType   QualificationType
+  institution         String?
+  qualificationName   String
+  documentUrl         String?
+  documentKey         String?             // For S3/Cloudinary deletion
+  verificationStatus  VerificationStatus  @default(PENDING)
+  verificationNotes   String?             // Admin notes on verification
+  issueDate           DateTime?
+  expiryDate          DateTime?
+  
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  @@index([tutorId])
+  @@index([qualificationType])
+  @@index([verificationStatus])
+}
+
+enum QualificationType {
+  DEGREE
+  TEACHING_CERTIFICATION
+  DBS_CHECK
+  PROFESSIONAL_CERTIFICATION
+  OTHER
+}
