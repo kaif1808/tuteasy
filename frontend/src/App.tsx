@@ -8,6 +8,7 @@ import { VerifyEmailNotice } from './pages/VerifyEmailNotice';
 import { VerifyEmail } from './pages/VerifyEmail';
 import { Dashboard } from './pages/Dashboard';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { TutorProfilePage } from './components/features/tutor-profile/pages/TutorProfilePage';
 import { useAuthStore } from './stores/authStore';
 
 function App() {
@@ -40,6 +41,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/profile" 
+            element={
+              <ProtectedRoute>
+                <TutorProfilePage />
               </ProtectedRoute>
             } 
           />

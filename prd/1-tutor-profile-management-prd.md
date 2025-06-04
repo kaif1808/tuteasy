@@ -18,6 +18,21 @@ The Tutor Profile Management System serves as the foundation for tutor identity 
   - Subject expertise listings with proficiency levels
   - Education background and qualifications
   - Teaching experience history
+  - **Qualification Levels (MVP)**: GCSE/IGCSE, A-Level, and IB level teaching capabilities
+
+- **Qualification Levels Specification (MVP)**
+  - **GCSE/IGCSE**: General Certificate of Secondary Education and International GCSE
+    - Target age group: 14-16 years
+    - Foundation level qualifications
+    - Core subjects: Mathematics, English, Sciences, Humanities
+  - **A-Level**: Advanced Level qualifications
+    - Target age group: 16-18 years  
+    - Advanced secondary education
+    - Specialized subject focus
+  - **IB**: International Baccalaureate
+    - Target age group: 16-19 years
+    - International curriculum standard
+    - Holistic education approach with six subject groups
 
 - **Credential Verification**
   - DBS/Background check certificate upload
@@ -128,6 +143,7 @@ CREATE TABLE tutor_subjects (
     tutor_id INTEGER REFERENCES tutors(id),
     subject_name VARCHAR(100),
     proficiency_level VARCHAR(20), -- beginner, intermediate, advanced, expert
+    qualification_levels TEXT[], -- For MVP: 'GCSE', 'IGCSE', 'A_LEVEL', 'IB'
     years_experience INTEGER,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -154,11 +170,13 @@ CREATE TABLE tutor_qualifications (
 - I want to upload my credentials so that parents trust my qualifications
 - I want to set different rates for different subjects so that I can price appropriately
 - I want to track how many people view my profile so that I can optimize it
+- I want to specify which qualification levels I teach (GCSE/IGCSE, A-Level, IB) so students can find the right level of support
 
 ### As a Student/Parent
 - I want to see verified tutor credentials so that I can trust their qualifications
 - I want to view tutor introduction videos so that I can get a sense of their teaching style
 - I want to see transparent pricing so that I can budget appropriately
+- I want to filter tutors by qualification level (GCSE/IGCSE, A-Level, IB) so I can find appropriate help for my child's curriculum
 
 ### As an Agency Administrator
 - I want to verify tutor credentials efficiently so that we maintain quality standards
@@ -200,7 +218,8 @@ DELETE /api/tutors/qualifications/:id   // Remove qualification
 
 // Public Profile Views
 GET    /api/tutors/:id/public           // Get public tutor profile
-GET    /api/tutors/search               // Search tutors
+GET    /api/tutors/search               // Search tutors with qualification level filters
+                                       // Query params: ?qualification_levels=GCSE,A_LEVEL,IB
 ```
 
 ## Implementation Timeline
