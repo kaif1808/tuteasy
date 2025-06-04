@@ -77,4 +77,96 @@ public/uploads/
 .netlify
 
 # Prisma
-prisma/migrations/dev/ 
+prisma/migrations/dev/
+
+# ==== COMMERCIAL PROTECTION ====
+
+# Proprietary configuration files
+config/production.json
+config/staging.json
+secrets/
+keys/
+private/
+
+# Commercial deployment files
+docker-compose.prod.yml
+kubernetes/
+terraform/
+ansible/
+helm/
+
+# License and activation files
+license.key
+activation.json
+*.lic
+*.license
+
+# Business documents
+business-plan/
+financial-projections/
+investor-docs/
+legal-docs/
+contracts/
+
+# Customer data and analytics
+customer-data/
+analytics-data/
+user-exports/
+reports/
+metrics/
+
+# Backup files
+backups/
+*.backup
+*.sql
+*.dump
+
+# SSL certificates and keys
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
+certs/
+
+# Payment processor files
+stripe/
+payment-configs/
+webhook-secrets/
+
+# Monitoring and APM configs
+newrelic.js
+datadog.yaml
+sentry.properties
+monitoring/
+
+# Security files
+security-reports/
+vulnerability-scans/
+penetration-test-results/
+
+# Third-party integrations
+integrations/private/
+api-credentials/
+vendor-configs/
+
+# Production deployment scripts
+deploy-prod.sh
+deploy-staging.sh
+production-scripts/
+
+# Infrastructure as Code secrets
+terraform.tfstate
+terraform.tfstate.backup
+*.tfvars
+*.auto.tfvars
+
+# Docker secrets
+docker-secrets/
+.docker/
+
+# Commercial source protection
+obfuscated/
+minified/
+compiled/ 
