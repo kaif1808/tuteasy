@@ -67,8 +67,8 @@ tutoring-crm-platform/
 
 ```bash
 # Create project directory
-mkdir tutoring-crm-platform
-cd tutoring-crm-platform
+mkdir tuteasy
+cd tuteasy
 
 # Initialize git repository
 git init
