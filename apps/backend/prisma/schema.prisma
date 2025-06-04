@@ -1,0 +1,333 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  TUTOR
+  STUDENT
+  PARENT
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  DELETED
+}
+
+enum SessionStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum NotificationType {
+  SESSION_SCHEDULED
+  SESSION_REMINDER
+  SESSION_CANCELLED
+  SESSION_COMPLETED
+  PAYMENT_RECEIVED
+  PAYMENT_FAILED
+  MESSAGE_RECEIVED
+  REVIEW_RECEIVED
+  PROFILE_VERIFIED
+  SYSTEM_ANNOUNCEMENT
+}
+
+model User {
+  id            String     @id @default(cuid())
+  email         String     @unique
+  emailVerified Boolean    @default(false)
+  passwordHash  String
+  firstName     String
+  lastName      String
+  phone         String?
+  role          UserRole   @default(STUDENT)
+  status        UserStatus @default(ACTIVE)
+  lastLogin     DateTime?
+  loginAttempts Int        @default(0)
+  lockedUntil   DateTime?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  // Relations
+  tutorProfile   TutorProfile?
+  studentProfile StudentProfile?
+  
+  // Sessions as tutor or student
+  tutorSessions    Session[] @relation("TutorSessions")
+  studentSessions  Session[] @relation("StudentSessions")
+  
+  // Communication
+  sentMessages     Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+  
+  // Payments
+  paidPayments     Payment[] @relation("PayerPayments")
+  receivedPayments Payment[] @relation("PayeePayments")
+  
+  // Reviews
+  givenReviews    Review[] @relation("ReviewerReviews")
+  receivedReviews Review[] @relation("RevieweeReviews")
+  
+  // Session notes
+  sessionNotes SessionNote[]
+  
+  // Notifications
+  notifications Notification[]
+  
+  // Audit logs
+  auditLogs AuditLog[]
+  
+  // Parent-child relationship
+  children     StudentProfile[] @relation("ParentChildren")
+  cancelledSessions Session[] @relation("CancelledBy")
+
+  @@map("users")
+}
+
+model TutorProfile {
+  id               String    @id @default(cuid())
+  userId           String    @unique
+  bio              String?
+  profileImageUrl  String?
+  hourlyRate       Decimal
+  subjects         String[]
+  qualifications   String[]
+  experienceYears  Int       @default(0)
+  languages        String[]  @default(["English"])
+  timezone         String    @default("UTC")
+  verified         Boolean   @default(false)
+  verifiedAt       DateTime?
+  rating           Decimal   @default(0.00) @db.Decimal(3, 2)
+  totalSessions    Int       @default(0)
+  totalStudents    Int       @default(0)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  // Relations
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessions     Session[]
+  availability Availability[]
+
+  @@map("tutor_profiles")
+}
+
+model StudentProfile {
+  id                     String   @id @default(cuid())
+  userId                 String   @unique
+  parentId               String?
+  gradeLevel             String?
+  schoolName             String?
+  subjectsOfInterest     String[]
+  learningGoals          String?
+  specialNeeds           String?
+  preferredLearningStyle String?
+  timezone               String   @default("UTC")
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  // Relations
+  user     User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent   User? @relation("ParentChildren", fields: [parentId], references: [id])
+  sessions Session[]
+
+  @@map("student_profiles")
+}
+
+model Availability {
+  id             String    @id @default(cuid())
+  tutorId        String
+  dayOfWeek      Int // 0 = Sunday, 6 = Saturday
+  startTime      String // HH:MM format
+  endTime        String // HH:MM format
+  isRecurring    Boolean   @default(true)
+  effectiveFrom  DateTime  @default(now()) @db.Date
+  effectiveUntil DateTime? @db.Date
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  tutor TutorProfile @relation(fields: [tutorId], references: [id], onDelete: Cascade)
+
+  @@map("availability")
+}
+
+model Session {
+  id                String        @id @default(cuid())
+  tutorId           String
+  studentId         String
+  subject           String
+  title             String
+  description       String?
+  scheduledAt       DateTime
+  durationMinutes   Int           @default(60)
+  status            SessionStatus @default(SCHEDULED)
+  zoomMeetingId     String?
+  zoomJoinUrl       String?
+  zoomPassword      String?
+  actualStartTime   DateTime?
+  actualEndTime     DateTime?
+  cancellationReason String?
+  cancelledBy       String?
+  cancelledAt       DateTime?
+  price             Decimal
+  currency          String        @default("USD")
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  tutor            TutorProfile  @relation(fields: [tutorId], references: [id])
+  student          StudentProfile @relation(fields: [studentId], references: [id])
+  cancelledByUser  User?         @relation("CancelledBy", fields: [cancelledBy], references: [id])
+  
+  // Related entities
+  notes    SessionNote[]
+  reviews  Review[]
+  payments Payment[]
+
+  @@map("sessions")
+}
+
+model SessionNote {
+  id          String   @id @default(cuid())
+  sessionId   String
+  authorId    String
+  content     String
+  isPrivate   Boolean  @default(false)
+  attachments Json?    // Array of attachment objects
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  author  User    @relation(fields: [authorId], references: [id])
+
+  @@map("session_notes")
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  sessionId  String
+  reviewerId String
+  revieweeId String
+  rating     Int // 1-5 stars
+  comment    String?
+  isPublic   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  session  Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  reviewer User    @relation("ReviewerReviews", fields: [reviewerId], references: [id])
+  reviewee User    @relation("RevieweeReviews", fields: [revieweeId], references: [id])
+
+  @@unique([sessionId, reviewerId])
+  @@map("reviews")
+}
+
+model Message {
+  id          String    @id @default(cuid())
+  senderId    String
+  recipientId String
+  subject     String?
+  content     String
+  isRead      Boolean   @default(false)
+  readAt      DateTime?
+  attachments Json?     // Array of attachment objects
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  sender    User @relation("SentMessages", fields: [senderId], references: [id])
+  recipient User @relation("ReceivedMessages", fields: [recipientId], references: [id])
+
+  @@map("messages")
+}
+
+model Payment {
+  id                     String        @id @default(cuid())
+  sessionId              String
+  payerId                String
+  payeeId                String
+  amount                 Decimal
+  currency               String        @default("USD")
+  status                 PaymentStatus @default(PENDING)
+  paymentMethod          String?
+  stripePaymentIntentId  String?       @unique
+  stripeChargeId         String?
+  stripeRefundId         String?
+  platformFee            Decimal       @default(0.00)
+  tutorEarnings          Decimal
+  processedAt            DateTime?
+  refundedAt             DateTime?
+  refundReason           String?
+  metadata               Json?
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+
+  // Relations
+  session Session @relation(fields: [sessionId], references: [id])
+  payer   User    @relation("PayerPayments", fields: [payerId], references: [id])
+  payee   User    @relation("PayeePayments", fields: [payeeId], references: [id])
+
+  @@map("payments")
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String
+  data      Json?            // Additional data for the notification
+  isRead    Boolean          @default(false)
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model AuditLog {
+  id         String    @id @default(cuid())
+  userId     String?
+  action     String
+  entityType String
+  entityId   String?
+  oldValues  Json?
+  newValues  Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime  @default(now())
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
