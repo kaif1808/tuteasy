@@ -38,6 +38,8 @@ model User {
 
   // Relations
   tutor             Tutor?
+  studentProfile    StudentProfile?
+  childrenProfiles  StudentProfile[] @relation("StudentParent")
   refreshTokens     RefreshToken[]
 
   @@index([email])
@@ -166,4 +168,41 @@ enum QualificationType {
   DBS_CHECK
   PROFESSIONAL_CERTIFICATION
   OTHER
+}
+
+// Student profile management
+model StudentProfile {
+  id                      String               @id @default(uuid())
+  userId                  String               @unique
+  user                    User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Basic information
+  parentId                String?              // Reference to parent user ID
+  parent                  User?                @relation("StudentParent", fields: [parentId], references: [id])
+  gradeLevel              String?              // e.g., "3rd Grade", "7th Grade", "High School"
+  schoolName              String?
+  
+  // Learning preferences and goals
+  subjectsOfInterest      String[]             @default([])
+  learningGoals           String?              @db.Text
+  specialNeeds            String?              @db.Text
+  preferredLearningStyle  LearningStyle?
+  
+  // Settings
+  timezone                String               @default("UTC")
+  profileCompleteness     Int                  @default(0) // Percentage 0-100
+  
+  createdAt               DateTime             @default(now())
+  updatedAt               DateTime             @updatedAt
+
+  @@index([userId])
+  @@index([parentId])
+}
+
+enum LearningStyle {
+  VISUAL
+  AUDITORY
+  KINESTHETIC
+  READING_WRITING
+  MULTIMODAL
 }

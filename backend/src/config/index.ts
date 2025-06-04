@@ -15,8 +15,8 @@ const envSchema = z.object({
   JWT_EXPIRES_IN: z.string().default('24h'),
   JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
   
-  // Redis
-  REDIS_URL: z.string().url(),
+  // Redis (optional for development)
+  REDIS_URL: z.string().url().optional(),
   
   // Storage (AWS S3 or Cloudinary)
   STORAGE_TYPE: z.enum(['s3', 'cloudinary']).default('cloudinary'),
@@ -68,7 +68,7 @@ export const config = {
     refreshExpiresIn: parsedEnv.data.JWT_REFRESH_EXPIRES_IN,
   },
   redis: {
-    url: parsedEnv.data.REDIS_URL,
+    url: parsedEnv.data.REDIS_URL || null,
   },
   storage: {
     type: parsedEnv.data.STORAGE_TYPE,

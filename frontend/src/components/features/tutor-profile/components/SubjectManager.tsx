@@ -3,7 +3,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Edit, Trash2, GraduationCap, Clock, DollarSign } from 'lucide-react';
 import { TutorProfileService, tutorProfileKeys } from '../services/tutorProfileService';
 import type { TutorSubject, ProficiencyLevel } from '../types';
-import { SUBJECT_OPTIONS } from '../types';
 
 interface SubjectManagerProps {
   subjects: TutorSubject[];

@@ -6,15 +6,21 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Save, Loader2 } from 'lucide-react';
 // import { Button } from '../../../ui/Button';
 import { TutorProfileService, tutorProfileKeys } from '../services/tutorProfileService';
-import type { TutorProfile, TeachingPreference } from '../types';
-import { AGE_GROUP_OPTIONS, LANGUAGE_OPTIONS } from '../types';
+import type { TutorProfile } from '../types';
+import { AGE_GROUP_OPTIONS, LANGUAGE_OPTIONS, TeachingPreference } from '../types';
 
 // Validation schema
 const profileSchema = z.object({
   bio: z.string().min(50, 'Bio must be at least 50 characters').max(1000, 'Bio cannot exceed 1000 characters'),
-  hourlyRateMin: z.number().min(5, 'Minimum rate must be at least £5').optional(),
-  hourlyRateMax: z.number().min(5, 'Maximum rate must be at least £5').optional(),
-  teachingPreference: z.nativeEnum(TeachingPreference as any),
+  hourlyRateMin: z.preprocess(
+    (val) => (val === "" || val === null || val === undefined ? undefined : parseFloat(String(val))),
+    z.number().min(5, 'Minimum rate must be at least £5').optional()
+  ),
+  hourlyRateMax: z.preprocess(
+    (val) => (val === "" || val === null || val === undefined ? undefined : parseFloat(String(val))),
+    z.number().min(5, 'Maximum rate must be at least £5').optional()
+  ),
+  teachingPreference: z.nativeEnum(TeachingPreference),
   ageGroupSpecialization: z.array(z.string()),
   languageProficiencies: z.array(z.string()),
 });
@@ -38,9 +44,9 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ profile }) => {
     resolver: zodResolver(profileSchema),
     defaultValues: {
       bio: profile?.bio || '',
-      hourlyRateMin: profile?.hourlyRateMin || '',
-      hourlyRateMax: profile?.hourlyRateMax || '',
-      teachingPreference: profile?.teachingPreference || 'BOTH',
+      hourlyRateMin: profile?.hourlyRateMin ?? undefined,
+      hourlyRateMax: profile?.hourlyRateMax ?? undefined,
+      teachingPreference: profile?.teachingPreference || TeachingPreference.BOTH,
       ageGroupSpecialization: profile?.ageGroupSpecialization || [],
       languageProficiencies: profile?.languageProficiencies || [],
     },
@@ -53,16 +59,17 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ profile }) => {
   // Update or create mutation
   const saveMutation = useMutation({
     mutationFn: (data: ProfileFormData) => {
-      const formData = {
+      // Ensure hourly rates are numbers or undefined
+      const processedData = {
         ...data,
-        hourlyRateMin: data.hourlyRateMin === '' ? undefined : Number(data.hourlyRateMin),
-        hourlyRateMax: data.hourlyRateMax === '' ? undefined : Number(data.hourlyRateMax),
+        hourlyRateMin: data.hourlyRateMin === undefined ? undefined : Number(data.hourlyRateMin),
+        hourlyRateMax: data.hourlyRateMax === undefined ? undefined : Number(data.hourlyRateMax),
       };
 
       if (profile) {
-        return TutorProfileService.updateProfile(formData);
+        return TutorProfileService.updateProfile(processedData);
       } else {
-        return TutorProfileService.createProfile(formData);
+        return TutorProfileService.createProfile(processedData);
       }
     },
     onSuccess: () => {

@@ -76,4 +76,35 @@ export const createQualificationSchema = z.object({
 export const updateQualificationSchema = z.object({
   verificationStatus: z.enum(['PENDING', 'VERIFIED', 'REJECTED']).optional(),
   verificationNotes: z.string().max(500).optional(),
+});
+
+// Student Profile validation schemas
+export const LearningStyle = {
+  VISUAL: 'VISUAL',
+  AUDITORY: 'AUDITORY',
+  KINESTHETIC: 'KINESTHETIC',
+  READING_WRITING: 'READING_WRITING',
+  MULTIMODAL: 'MULTIMODAL'
+} as const;
+
+export const updateStudentProfileSchema = z.object({
+  gradeLevel: z.string().max(50).optional(),
+  schoolName: z.string().max(200).optional(),
+  subjectsOfInterest: z.array(z.string().max(100)).optional(),
+  learningGoals: z.string().max(1000).optional(),
+  specialNeeds: z.string().max(1000).optional(),
+  preferredLearningStyle: z.enum(['VISUAL', 'AUDITORY', 'KINESTHETIC', 'READING_WRITING', 'MULTIMODAL']).optional(),
+  timezone: z.string().max(50).optional(),
+  parentId: z.string().uuid().optional(),
+});
+
+export const createStudentProfileSchema = z.object({
+  gradeLevel: z.string().max(50).optional(),
+  schoolName: z.string().max(200).optional(),
+  subjectsOfInterest: z.array(z.string().max(100)).default([]),
+  learningGoals: z.string().max(1000).optional(),
+  specialNeeds: z.string().max(1000).optional(),
+  preferredLearningStyle: z.enum(['VISUAL', 'AUDITORY', 'KINESTHETIC', 'READING_WRITING', 'MULTIMODAL']).optional(),
+  timezone: z.string().max(50).default('UTC'),
+  parentId: z.string().uuid().optional(),
 }); 

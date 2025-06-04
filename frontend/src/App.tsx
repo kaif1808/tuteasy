@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react'; // Not needed in React 17+ with jsx-runtime
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
@@ -8,7 +8,12 @@ import { VerifyEmailNotice } from './pages/VerifyEmailNotice';
 import { VerifyEmail } from './pages/VerifyEmail';
 import { Dashboard } from './pages/Dashboard';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import { TutorProfilePage } from './components/features/tutor-profile/pages/TutorProfilePage';
+// TODO: Re-enable TutorProfilePage once TypeScript errors in its dependencies are resolved
+// import { TutorProfilePage } from './components/features/tutor-profile/pages/TutorProfilePage';
+import { StudentProfilePage } from './components/features/student-profile/pages/StudentProfilePage';
+import { StudentProfileDemo } from './pages/StudentProfileDemo';
+import { ComponentTest } from './pages/ComponentTest';
+import { StudentProfileTest } from './pages/StudentProfileTest';
 import { useAuthStore } from './stores/authStore';
 
 function App() {
@@ -35,6 +40,11 @@ function App() {
           <Route path="/verify-email-notice" element={<VerifyEmailNotice />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
           
+          {/* Demo routes */}
+          <Route path="/demo/student-profile" element={<StudentProfileDemo />} />
+          <Route path="/test/components" element={<ComponentTest />} />
+          <Route path="/test/student-profile" element={<StudentProfileTest />} />
+          
           {/* Protected routes */}
           <Route 
             path="/dashboard" 
@@ -44,11 +54,21 @@ function App() {
               </ProtectedRoute>
             } 
           />
+          {/* TODO: Re-enable TutorProfilePage route once TypeScript errors in its dependencies are resolved
           <Route 
             path="/profile" 
             element={
               <ProtectedRoute>
                 <TutorProfilePage />
+              </ProtectedRoute>
+            } 
+          />
+          */}
+          <Route 
+            path="/student-profile" 
+            element={
+              <ProtectedRoute>
+                <StudentProfilePage />
               </ProtectedRoute>
             } 
           />

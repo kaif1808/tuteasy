@@ -62,7 +62,8 @@ export const Register: React.FC = () => {
     try {
       setIsLoading(true);
       setError(null);
-      const { confirmPassword, ...registerData } = data;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { confirmPassword: _confirmPassword, ...registerData } = data;
       await authService.register(registerData);
       // Redirect to email verification notice page
       navigate('/verify-email-notice');

@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { config } from './config';
 import tutorProfileRoutes from './routes/tutorProfile.routes';
+import studentProfileRoutes from './routes/studentProfile.routes';
 import authRoutes from './routes/authRoutes';
 import { ZodError } from 'zod';
 
@@ -45,6 +46,7 @@ app.get('/health', (_req, res) => {
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/tutors', tutorProfileRoutes);
+app.use('/api/v1/student', studentProfileRoutes);
 
 // Error handling middleware
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

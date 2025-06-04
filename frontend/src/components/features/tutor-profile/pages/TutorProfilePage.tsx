@@ -93,7 +93,7 @@ export const TutorProfilePage: React.FC = () => {
               </div>
               <ProfileImageUpload
                 currentImageUrl={profile?.profileImageUrl}
-                onImageUpdate={(imageUrl) => {
+                onImageUpdate={() => {
                   // Refresh profile data after image update
                   refetch();
                 }}
