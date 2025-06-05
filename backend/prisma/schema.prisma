@@ -119,16 +119,47 @@ model TutorSubject {
   tutorId          String
   tutor            Tutor             @relation(fields: [tutorId], references: [id], onDelete: Cascade)
   
-  subjectName      String
-  proficiencyLevel ProficiencyLevel  @default(INTERMEDIATE)
-  yearsExperience  Int               @default(0)
-  hourlyRate       Decimal?          @db.Decimal(8, 2) // Subject-specific rate
+  subjectName      String            @map("subject_name")
+  qualificationLevel QualificationLevel @map("qualification_level")
+  proficiencyLevel ProficiencyLevel  @default(INTERMEDIATE) @map("proficiency_level") // Teaching confidence level
+  yearsExperience  Int               @default(0) @map("years_experience")
+  hourlyRate       Decimal?          @db.Decimal(8, 2) @map("hourly_rate") // Subject-specific rate
+  examBoards       String[]          @default([]) @map("exam_boards") // e.g., ["AQA", "Edexcel", "OCR"]
+  
+  // Additional metadata for IB subjects
+  ibSubjectGroup   String?           @map("ib_subject_group") // e.g., "Group 1: Studies in Language and Literature"
+  ibLanguage       String?           @map("ib_language") // For language subjects
   
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
 
-  @@unique([tutorId, subjectName])
+  @@unique([tutorId, subjectName, qualificationLevel])
   @@index([tutorId])
+  @@map("tutor_subjects")
+}
+
+enum QualificationLevel {
+  EARLY_YEARS
+  PRIMARY
+  KS1
+  KS2
+  KS3
+  GCSE
+  IGCSE
+  A_LEVEL
+  AS_LEVEL
+  BTEC_LEVEL_1
+  BTEC_LEVEL_2
+  BTEC_LEVEL_3
+  IB_PYP
+  IB_MYP
+  IB_DP_SL     // Standard Level
+  IB_DP_HL     // Higher Level
+  IB_CP
+  UNDERGRADUATE
+  POSTGRADUATE
+  ADULT_EDUCATION
+  OTHER
 }
 
 enum ProficiencyLevel {
@@ -163,10 +194,28 @@ model TutorQualification {
 }
 
 enum QualificationType {
-  DEGREE
-  TEACHING_CERTIFICATION
-  DBS_CHECK
-  PROFESSIONAL_CERTIFICATION
+  BACHELORS_DEGREE
+  MASTERS_DEGREE
+  DOCTORAL_DEGREE
+  QTS                                // Qualified Teacher Status
+  PGCE                               // Postgraduate Certificate in Education
+  PGDE                               // Postgraduate Diploma in Education
+  TEACHING_DIPLOMA
+  TEACHING_CERTIFICATE
+  IB_CERTIFICATE_TEACHING_LEARNING   // IB Certificate in Teaching and Learning
+  IB_ADVANCED_CERTIFICATE           // IB Advanced Certificate
+  IB_CATEGORY_1_WORKSHOP            // IB Category 1 Workshop
+  IB_CATEGORY_2_WORKSHOP            // IB Category 2 Workshop
+  IB_CATEGORY_3_WORKSHOP            // IB Category 3 Workshop
+  A_LEVEL_QUALIFICATION
+  GCSE_QUALIFICATION
+  BTEC_QUALIFICATION
+  DBS_CHECK                         // Disclosure and Barring Service
+  SAFEGUARDING_CERTIFICATE
+  FIRST_AID_CERTIFICATE
+  PROFESSIONAL_CERTIFICATION       // e.g., CPA, ACCA, etc.
+  LANGUAGE_PROFICIENCY             // e.g., CELTA, TESOL
+  MUSIC_QUALIFICATION              // e.g., ABRSM Grade 8, Diploma
   OTHER
 }
 
@@ -179,8 +228,22 @@ model StudentProfile {
   // Basic information
   parentId                String?              // Reference to parent user ID
   parent                  User?                @relation("StudentParent", fields: [parentId], references: [id])
-  gradeLevel              String?              // e.g., "3rd Grade", "7th Grade", "High School"
-  schoolName              String?
+  
+  // UK Educational System
+  ukYearGroup             UKYearGroup?         @map("uk_year_group")
+  ukKeyStage              UKKeyStage?          @map("uk_key_stage")
+  
+  // International Baccalaureate System
+  ibProgramme             IBProgramme?         @map("ib_programme")
+  ibYear                  Int?                 @map("ib_year")
+  
+  // Legacy/display field for compatibility
+  gradeLevel              String?              // e.g., "3rd Grade", "7th Grade", "High School" - keep for backward compatibility
+  academicLevelDisplay    String?              @map("academic_level_display")
+  
+  // School Information
+  schoolName              String?              @map("school_name")
+  schoolType              SchoolType?          @map("school_type")
   
   // Learning preferences and goals
   subjectsOfInterest      String[]             @default([])
@@ -205,4 +268,165 @@ enum LearningStyle {
   KINESTHETIC
   READING_WRITING
   MULTIMODAL
+}
+
+// Prisma Schema for TutEasy Platform
+// Supports UK Educational System and International Baccalaureate (IB)
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  DELETED
+}
+
+enum UKYearGroup {
+  NURSERY
+  RECEPTION
+  YEAR_1
+  YEAR_2
+  YEAR_3
+  YEAR_4
+  YEAR_5
+  YEAR_6
+  YEAR_7
+  YEAR_8
+  YEAR_9
+  YEAR_10
+  YEAR_11
+  YEAR_12
+  YEAR_13
+}
+
+enum UKKeyStage {
+  EARLY_YEARS  // Nursery, Reception
+  KS1          // Years 1-2 (Ages 5-7)
+  KS2          // Years 3-6 (Ages 7-11)
+  KS3          // Years 7-9 (Ages 11-14)
+  KS4          // Years 10-11 (Ages 14-16, GCSE level)
+  KS5          // Years 12-13 (Ages 16-18, A-Level level)
+}
+
+enum IBProgramme {
+  PYP          // Primary Years Programme (Ages 3-12)
+  MYP          // Middle Years Programme (Ages 11-16)
+  DP           // Diploma Programme (Ages 16-19)
+  CP           // Career-related Programme (Ages 16-19)
+}
+
+enum QualificationLevel {
+  EARLY_YEARS
+  PRIMARY
+  KS1
+  KS2
+  KS3
+  GCSE
+  IGCSE
+  A_LEVEL
+  AS_LEVEL
+  BTEC_LEVEL_1
+  BTEC_LEVEL_2
+  BTEC_LEVEL_3
+  IB_PYP
+  IB_MYP
+  IB_DP_SL     // Standard Level
+  IB_DP_HL     // Higher Level
+  IB_CP
+  UNDERGRADUATE
+  POSTGRADUATE
+  ADULT_EDUCATION
+  OTHER
+}
+
+enum TutorQualificationType {
+  // Degrees
+  BACHELORS_DEGREE
+  MASTERS_DEGREE
+  DOCTORAL_DEGREE
+  
+  // Teaching Qualifications
+  QTS                                // Qualified Teacher Status
+  PGCE                               // Postgraduate Certificate in Education
+  PGDE                               // Postgraduate Diploma in Education
+  TEACHING_DIPLOMA
+  TEACHING_CERTIFICATE
+  
+  // IB Specific Qualifications
+  IB_CERTIFICATE_TEACHING_LEARNING   // IB Certificate in Teaching and Learning
+  IB_ADVANCED_CERTIFICATE           // IB Advanced Certificate
+  IB_LEADERSHIP_CERTIFICATE         // IB Leadership Certificate
+  IB_SUBJECT_WORKSHOP_CERTIFICATE   // Subject-specific workshop certificates
+  IB_CATEGORY_1_WORKSHOP            // IB Category 1 Workshop
+  IB_CATEGORY_2_WORKSHOP            // IB Category 2 Workshop
+  IB_CATEGORY_3_WORKSHOP            // IB Category 3 Workshop
+  
+  // UK Academic Qualifications (when held as credentials)
+  A_LEVEL_QUALIFICATION
+  GCSE_QUALIFICATION
+  BTEC_QUALIFICATION
+  
+  // Professional Qualifications
+  DBS_CHECK                         // Disclosure and Barring Service
+  SAFEGUARDING_CERTIFICATE
+  FIRST_AID_CERTIFICATE
+  
+  // Subject-Specific Professional Qualifications
+  PROFESSIONAL_CERTIFICATION       // e.g., CPA, ACCA, etc.
+  LANGUAGE_PROFICIENCY             // e.g., CELTA, TESOL
+  MUSIC_QUALIFICATION              // e.g., ABRSM Grade 8, Diploma
+  OTHER
+}
+
+enum SchoolType {
+  STATE_COMPREHENSIVE
+  STATE_GRAMMAR
+  ACADEMY
+  FREE_SCHOOL
+  INDEPENDENT_SCHOOL
+  SIXTH_FORM_COLLEGE
+  FE_COLLEGE              // Further Education
+  INTERNATIONAL_SCHOOL
+  SPECIAL_SCHOOL
+  PUPIL_REFERRAL_UNIT
+  HOME_EDUCATED
+  OTHER
+}
+
+enum CurrencyCode {
+  GBP
+  USD
+  EUR
+  CAD
+  AUD
+}
+
+enum SessionStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum NotificationType {
+  SESSION_SCHEDULED
+  SESSION_REMINDER
+  SESSION_CANCELLED
+  SESSION_COMPLETED
+  PAYMENT_RECEIVED
+  PAYMENT_FAILED
+  MESSAGE_RECEIVED
+  REVIEW_RECEIVED
+  PROFILE_VERIFIED
+  QUALIFICATION_VERIFIED
+  SYSTEM_ANNOUNCEMENT
 }

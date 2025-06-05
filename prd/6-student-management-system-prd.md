@@ -14,8 +14,13 @@ The Student Management System provides comprehensive tools for tracking student 
 ### Core Features (MVP)
 - **Student Profiles**
   - Basic student information (name, age, contact)
-  - Educational history and Year Group/Key Stage (e.g., Year 10, KS4)
+  - Educational pathway selection:
+    - **UK System**: Year Group (Nursery to Year 13) and Key Stage (Early Years, KS1-KS5)
+    - **IB System**: Programme (PYP, MYP, DP, CP) and programme year
+    - **Mixed/Custom**: Flexible academic level description for students in transitional or unique situations
+  - School information (name, type, country if international)
   - Learning preferences and goals
+  - Subject interests (with level specification, e.g., "A-Level Maths", "IB Chemistry HL", "GCSE History")
   - Parent/guardian information
   - Special needs or accommodations
   - Contact history
@@ -103,21 +108,43 @@ The Student Management System provides comprehensive tools for tracking student 
 ### Database Schema
 
 ```sql
--- Student profiles
+-- Student profiles (Updated for UK/IB system support)
 CREATE TABLE students (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id),
+    id VARCHAR(30) PRIMARY KEY DEFAULT generate_cuid(),
+    user_id VARCHAR(30) REFERENCES users(id),
     date_of_birth DATE,
-    year_group VARCHAR(15), -- e.g., "Year 1", "Year 10", "Year 13"
-    key_stage VARCHAR(10), -- e.g., "KS1", "KS2", "KS3", "KS4", "KS5" (Optional, can be derived or also stored)
-    school VARCHAR(255),
+    
+    -- UK Educational System
+    uk_year_group uk_year_group,           -- e.g., 'YEAR_10', 'YEAR_13'
+    uk_key_stage uk_key_stage,             -- e.g., 'KS4', 'KS5'
+    
+    -- International Baccalaureate System  
+    ib_programme ib_programme,             -- e.g., 'PYP', 'MYP', 'DP', 'CP'
+    ib_year INTEGER,                       -- Programme year (1-2 for DP, 1-5 for MYP, etc.)
+    
+    -- Display field for mixed or custom academic levels
+    academic_level_display VARCHAR(100),   -- e.g., "Year 10", "IB DP Year 1"
+    
+    -- School information
+    school_name VARCHAR(200),
+    school_type school_type,               -- Using enum: 'STATE_COMPREHENSIVE', 'INDEPENDENT_SCHOOL', etc.
+    
+    -- Learning profile
+    subjects_of_interest TEXT[],           -- e.g., ["A-Level Maths", "IB Physics HL", "GCSE History"]
     learning_style VARCHAR(50),
     special_needs TEXT,
-    interests TEXT,
     academic_goals TEXT,
     notes TEXT,
+    
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    
+    -- Constraints to ensure valid academic system selection
+    CONSTRAINT valid_academic_system CHECK (
+        (uk_year_group IS NOT NULL AND uk_key_stage IS NOT NULL AND ib_programme IS NULL) OR
+        (ib_programme IS NOT NULL AND ib_year IS NOT NULL AND uk_year_group IS NULL AND uk_key_stage IS NULL) OR  
+        (academic_level_display IS NOT NULL AND uk_year_group IS NULL AND ib_programme IS NULL)
+    )
 );
 
 -- Parent/guardian relationships

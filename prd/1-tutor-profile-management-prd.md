@@ -18,7 +18,7 @@ The Tutor Profile Management System serves as the foundation for tutor identity 
   - Subject expertise listings: displayed as "Qualification Level Subject" (e.g., "A-Level Maths", "GCSE History"). Tutors will input Qualification Level and Subject separately.
   - Education background and qualifications (e.g., QTS, PGCE, BSc Physics, A-Levels. Explicitly mention options for UK qualifications and experience with UK exam boards like AQA, Edexcel, OCR).
   - Teaching experience history
-  - **Qualification Levels (MVP)**: GCSE/IGCSE, A-Level, IB, BTEC, Key Stage 1-4, Primary level teaching capabilities. These levels will be selectable when a tutor adds a subject they teach.
+  - **Qualification Levels (MVP)**: GCSE/IGCSE, A-Level, IB (PYP/MYP/DP/CP), BTEC, Key Stage 1-5, Primary level teaching capabilities. These levels will be selectable when a tutor adds a subject they teach.
 
 - **Qualification Levels Specification (MVP)**
   - **GCSE/IGCSE**: General Certificate of Secondary Education and International GCSE
@@ -29,18 +29,24 @@ The Tutor Profile Management System serves as the foundation for tutor identity 
     - Target age group: 16-18 years  
     - Advanced secondary education
     - Specialized subject focus
-  - **IB**: International Baccalaureate
-    - Target age group: 16-19 years
-    - International curriculum standard
-    - Holistic education approach
+  - **IB (International Baccalaureate)**: Comprehensive international education programmes
+    - **IB PYP (Primary Years Programme)**: Ages 3-12, inquiry-based learning framework
+    - **IB MYP (Middle Years Programme)**: Ages 11-16, developing skills for academic and personal success
+    - **IB DP (Diploma Programme)**: Ages 16-19, preparing students for university and life beyond
+      - Standard Level (SL) and Higher Level (HL) subjects
+      - Core components: Extended Essay, Theory of Knowledge, Creativity/Activity/Service
+    - **IB CP (Career-related Programme)**: Ages 16-19, combining academic and career-related learning
   - **BTEC**: Business and Technology Education Council qualifications
-    - Vocational qualifications, various levels corresponding to GCSE/A-Level equivalence.
-  - **Key Stages (KS1-KS4)**: Covering primary and secondary education prior to GCSE/A-Level.
-    - KS1: Years 1-2 (Ages 5-7)
-    - KS2: Years 3-6 (Ages 7-11)
-    - KS3: Years 7-9 (Ages 11-14)
-    - KS4: Years 10-11 (Ages 14-16, typically leads to GCSEs)
-  - **Primary**: General primary school level teaching.
+    - Vocational qualifications, various levels corresponding to GCSE/A-Level equivalence
+    - Level 1, Level 2 (GCSE equivalent), Level 3 (A-Level equivalent)
+  - **Key Stages (KS1-KS5)**: Covering the complete UK educational pathway
+    - **Early Years**: Nursery, Reception (Ages 3-5)
+    - **KS1**: Years 1-2 (Ages 5-7) - Foundation subjects
+    - **KS2**: Years 3-6 (Ages 7-11) - Building core skills
+    - **KS3**: Years 7-9 (Ages 11-14) - Broad curriculum introduction
+    - **KS4**: Years 10-11 (Ages 14-16) - GCSE preparation and completion
+    - **KS5**: Years 12-13 (Ages 16-18) - A-Levels, BTEC Level 3, IB DP
+  - **Primary**: General primary school level teaching (Early Years through Year 6)
 
 - **Credential Verification**
   - DBS/Background check certificate upload
