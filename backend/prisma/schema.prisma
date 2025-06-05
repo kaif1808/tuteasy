@@ -314,30 +314,6 @@ enum IBProgramme {
   CP           // Career-related Programme (Ages 16-19)
 }
 
-enum QualificationLevel {
-  EARLY_YEARS
-  PRIMARY
-  KS1
-  KS2
-  KS3
-  GCSE
-  IGCSE
-  A_LEVEL
-  AS_LEVEL
-  BTEC_LEVEL_1
-  BTEC_LEVEL_2
-  BTEC_LEVEL_3
-  IB_PYP
-  IB_MYP
-  IB_DP_SL     // Standard Level
-  IB_DP_HL     // Higher Level
-  IB_CP
-  UNDERGRADUATE
-  POSTGRADUATE
-  ADULT_EDUCATION
-  OTHER
-}
-
 enum TutorQualificationType {
   // Degrees
   BACHELORS_DEGREE
