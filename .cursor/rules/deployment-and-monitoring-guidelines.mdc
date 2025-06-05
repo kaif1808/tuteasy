@@ -1,0 +1,35 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+rule_type: deployment_procedures
+description: "Production deployment standards and monitoring protocols for educational platform infrastructure. Covers environment management, CI/CD pipelines, health monitoring, performance tracking, and operational maintenance procedures to ensure reliable service delivery."
+priority: high
+applies_to: ["infrastructure", "devops", "monitoring", "production_deployment"]
+---
+
+# Deployment and Monitoring Guidelines
+
+## Environment Management
+- Use separate environments: `development`, `staging`, and `production`.
+- Implement proper Continuous Integration/Continuous Deployment (CI/CD) pipelines (e.g., using GitHub Actions).
+- Use Docker for consistent deployment environments across all stages.
+- Implement health checks for all services that can be used by load balancers or orchestration platforms.
+- Set up proper logging with a structured log format (e.g., JSON) for easier parsing and analysis.
+
+## Monitoring and Alerting
+- Implement error tracking with tools like Sentry to capture and diagnose issues in production.
+- Monitor application performance and user experience (e.g., using APM tools, frontend performance monitoring).
+- Set up alerts for critical failures (e.g., payment processing errors, video call failures, high error rates, resource exhaustion).
+- Track key business metrics (e.g., user registration rates, session completion rates, active users).
+- Monitor infrastructure costs and resource usage to optimize spending and ensure scalability.
+
+## Regular Maintenance (Performance & Deployment Related)
+
+### Performance Reviews
+- Monitor and optimize database query performance continuously.
+- Review and update caching strategies based on usage patterns and performance data.
+- Optimize application bundle sizes and loading times for frontend assets.
+- Review and update API rate limits based on observed traffic and service capacity.

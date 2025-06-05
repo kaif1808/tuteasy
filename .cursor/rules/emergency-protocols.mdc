@@ -1,0 +1,207 @@
+---
+description: To be followed for any emergency situations.
+globs: 
+alwaysApply: false
+---
+# Emergency Protocols for Tutoring CRM Platform
+
+## Incident Response Procedures
+
+### Immediate Response (0-15 minutes)
+- **Assess Impact**: Determine severity level (Critical, High, Medium, Low)
+  - Critical: Platform down, data breach, payment system failure
+  - High: Core features unavailable, video calls failing, authentication issues
+  - Medium: Performance degradation, non-critical feature failures
+  - Low: Minor UI issues, non-blocking bugs
+
+### Severity Level Definitions
+
+#### Critical Incidents
+- Complete platform outage affecting all users
+- Data breach or suspected unauthorized access to student/tutor information
+- Payment processing failures preventing transactions
+- Security vulnerabilities actively being exploited
+- Database corruption or data loss
+
+#### High Priority Incidents
+- Authentication system failures preventing user login
+- Video conferencing system completely down
+- API failures affecting core tutoring functionality
+- Performance issues causing widespread user complaints
+- Third-party service outages affecting critical features
+
+### Escalation Matrix
+1. **Level 1**: On-call developer (0-15 minutes response time)
+2. **Level 2**: Lead developer + DevOps engineer (15-30 minutes)
+3. **Level 3**: Technical lead + Product manager (30-60 minutes)
+4. **Level 4**: CTO + Legal team (for data breaches, 1-2 hours)
+
+## Rollback Procedures
+
+### Database Rollbacks
+- **Prerequisites**: Verify database backup integrity before rollback
+- **Steps**:
+  1. Stop application servers to prevent new transactions
+  2. Create emergency backup of current state
+  3. Restore from verified backup point
+  4. Verify data integrity post-rollback
+  5. Restart services and monitor for issues
+
+### Application Deployment Rollbacks
+- **Automated Rollback**: Use CI/CD pipeline rollback feature
+- **Manual Rollback**: 
+  1. Tag current deployment as "rollback-candidate"
+  2. Deploy previous stable version
+  3. Update DNS/load balancer if necessary
+  4. Verify functionality across all critical paths
+  5. Notify stakeholders of rollback completion
+
+### Feature Flag Rollbacks
+- Immediately disable problematic feature flags
+- Verify feature is properly disabled for all users
+- Monitor logs for residual issues from disabled feature
+
+## Communication Protocols
+
+### Internal Communication
+- **Immediate**: Slack emergency channel for all incidents
+- **Documentation**: Create incident ticket in project management system
+- **Status Updates**: Every 30 minutes during active incidents
+- **Post-Incident**: Schedule post-mortem within 48 hours
+
+### External Communication
+- **Status Page**: Update platform status page within 15 minutes
+- **User Notifications**: In-app notifications for ongoing issues
+- **Email Updates**: For incidents lasting >2 hours
+- **Social Media**: For widespread outages only
+
+### Communication Templates
+
+#### Internal Alert Template
+```
+INCIDENT ALERT - [SEVERITY]
+Time: [UTC TIME]
+Issue: [BRIEF DESCRIPTION]
+Impact: [USER/SYSTEM IMPACT]
+Response Team: [ASSIGNED PERSONNEL]
+ETA for Update: [TIME]
+```
+
+#### User Communication Template
+```
+We're currently experiencing [ISSUE TYPE] affecting [AFFECTED SERVICES].
+Our team is working to resolve this issue.
+Expected resolution: [TIME ESTIMATE]
+We'll provide updates every [FREQUENCY].
+```
+
+## Recovery Procedures
+
+### Data Recovery
+- **Student/Tutor Data**: Restore from encrypted backups with audit trail
+- **Session Records**: Prioritize recent tutoring session data
+- **Payment Data**: Coordinate with payment processor for transaction recovery
+- **File Uploads**: Restore from cloud storage backups
+
+### Service Recovery Checklist
+1. Verify database connectivity and integrity
+2. Confirm authentication services are functional
+3. Test video conferencing capabilities
+4. Validate payment processing
+5. Check real-time messaging/notifications
+6. Verify file upload/download functionality
+7. Test mobile app functionality
+8. Confirm email delivery systems
+
+## Preventive Maintenance Schedules
+
+### Daily Monitoring
+- Database performance metrics review
+- Error rate monitoring across all services
+- Security scan results review
+- Backup verification (automated with manual spot checks)
+
+### Weekly Maintenance
+- Dependency security audit and updates
+- Performance optimization review
+- Load testing of critical user paths
+- Review and update monitoring alerts
+
+### Monthly Maintenance
+- Full security audit and penetration testing
+- Database optimization and index analysis
+- Disaster recovery drill execution
+- Emergency contact information verification
+- Review and update incident response procedures
+
+### Quarterly Maintenance
+- Complete infrastructure health assessment
+- Business continuity plan review and testing
+- Vendor relationship and SLA review
+- Staff emergency response training
+- Compliance audit (FERPA, COPPA, GDPR)
+
+## Emergency Contacts
+
+### Technical Team
+- **On-Call Developer**: [TO BE FILLED]
+- **DevOps Engineer**: [TO BE FILLED]
+- **Database Administrator**: [TO BE FILLED]
+- **Security Lead**: [TO BE FILLED]
+
+### Business Team
+- **Product Manager**: [TO BE FILLED]
+- **Customer Success Manager**: [TO BE FILLED]
+- **Legal Counsel**: [TO BE FILLED]
+
+### External Vendors
+- **Cloud Provider Support**: [TO BE FILLED]
+- **Payment Processor Emergency**: [TO BE FILLED]
+- **Video Service Provider**: [TO BE FILLED]
+- **Security Incident Response**: [TO BE FILLED]
+
+## Circuit Breaker Implementation
+
+### External API Calls
+- Implement timeouts (5 seconds for critical APIs, 10 seconds for non-critical)
+- Use exponential backoff for retry attempts
+- Fail gracefully with appropriate user messaging
+- Log all circuit breaker activations for monitoring
+
+### Database Connections
+- Implement connection pooling with maximum connection limits
+- Use read replicas for non-critical read operations during high load
+- Implement query timeouts to prevent long-running query impacts
+
+## Emergency Development Procedures
+
+### Hotfix Deployment Process
+1. Create emergency branch from production
+2. Implement minimal fix with comprehensive testing
+3. Fast-track code review with two senior developers
+4. Deploy to staging for smoke testing
+5. Deploy to production with all monitoring active
+6. Document emergency change for post-incident review
+
+### Security Incident Response
+1. **Immediate**: Isolate affected systems
+2. **Contain**: Prevent further unauthorized access
+3. **Investigate**: Determine scope and impact
+4. **Eradicate**: Remove security threats
+5. **Recover**: Restore secure operations
+6. **Learn**: Conduct thorough post-incident analysis
+
+## Post-Incident Procedures
+
+### Post-Mortem Requirements
+- **Timeline**: Complete within 48 hours of incident resolution
+- **Participants**: All responding team members + stakeholders
+- **Documentation**: Root cause analysis, timeline, impact assessment
+- **Action Items**: Concrete steps to prevent recurrence
+- **Follow-up**: Review action item completion within 30 days
+
+### Learning Integration
+- Update emergency procedures based on lessons learned
+- Share relevant learnings with entire development team
+- Update monitoring and alerting based on incident patterns
+- Consider infrastructure improvements to prevent similar issues

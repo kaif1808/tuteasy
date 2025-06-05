@@ -1,0 +1,58 @@
+---
+description: Comprehensive testing standards for unit and integration testing across frontend and backend components. Defines coverage requirements, testing strategies for educational platform features, and quality assurance protocols for payment processing, video calls, and data handling.
+globs: 
+alwaysApply: false
+---
+---
+rule_type: testing_requirements
+description: "Comprehensive testing standards for unit and integration testing across frontend and backend components. Defines coverage requirements, testing strategies for educational platform features, and quality assurance protocols for payment processing, video calls, and data handling."
+priority: high
+applies_to: ["backend", "frontend", "integration_testing", "quality_assurance"]
+---
+
+# Testing Guidelines
+
+## General Testing Principles
+- Aim for high test coverage, especially for critical business logic and core features.
+- Write tests that are clear, concise, and easy to understand.
+- Ensure tests are independent and can be run in any order.
+- Use descriptive test names that clearly explain what is being tested and the expected behavior.
+- Mock dependencies effectively to isolate the unit under test.
+
+## Unit Testing
+
+### General Unit Testing
+- Write unit tests for all utility functions and critical business logic functions.
+- Test individual components, services, and modules in isolation.
+
+### Frontend Unit Testing (e.g., React Components, Hooks)
+- Test custom React hooks using tools like React Testing Library (RTL).
+- For React components, test component behavior from a user's perspective (e.g., rendering, interactions, state changes).
+- Mock external dependencies like API calls, browser APIs (localStorage, fetch), and timers.
+- Aim for >80% code coverage on critical component paths.
+
+### Backend Unit Testing (e.g., Services, Controllers)
+- Test service layer methods for correct business logic implementation.
+- Test controller logic by mocking service dependencies and verifying responses/status codes.
+- Mock database interactions (e.g., Prisma Client) or use an in-memory database for faster tests.
+- Aim for >80% code coverage on critical service and controller logic.
+
+## Integration Testing
+
+### General Integration Testing
+- Test interactions between different parts of the application (e.g., frontend service calling backend API, service layer interacting with database).
+- Focus on verifying data flow and communication paths.
+
+### Frontend Integration Testing
+- Test user flows that involve multiple components and state changes.
+- Test interactions with mocked backend APIs to ensure correct request/response handling.
+
+### Backend Integration Testing
+- Test API endpoints with proper authentication and authorization mechanisms in place.
+- Test interactions between services and the actual database (or a test-specific database instance).
+- Verify that data is correctly persisted and retrieved.
+
+### Specific Feature Integration Testing
+- Test real-time communication features (e.g., Socket.io event emission and handling).
+- Test payment processing flows (ensure to use test mode credentials and environments).
+- Test file upload and video calling features from end-to-end (with appropriate mocks for external services if needed).

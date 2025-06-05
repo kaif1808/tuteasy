@@ -1,0 +1,71 @@
+---
+description: Backend development standards covering TypeScript usage, API design principles, database optimization, performance considerations, and real-time communication best practices. Ensures consistency, scalability, and maintainability in server-side development.
+globs: 
+alwaysApply: false
+---
+---
+rule_type: development_standards
+description: "Backend development standards covering TypeScript usage, API design principles, database optimization, performance considerations, and real-time communication best practices. Ensures consistency, scalability, and maintainability in server-side development."
+priority: high
+applies_to: ["backend", "api_development", "database_design"]
+---
+
+# Backend Development Guidelines
+
+## TypeScript and Code Quality (Backend)
+- Use TypeScript for all new backend code; ensure `strict` mode is enabled in `tsconfig.json`.
+- Define interfaces or types for all API request bodies, responses, service layer function parameters/returns, and database models (or use Prisma-generated types).
+- Use proper type annotations; actively avoid the `any` type, especially in critical data paths.
+- Use ESLint and Prettier with a consistent configuration for code linting and formatting.
+
+## Database and API Design
+- Use connection pooling for database connections to manage resources efficiently.
+- Implement proper database indexing for performance on frequently queried columns and relationships.
+- Follow RESTful API design principles consistently (e.g., proper use of HTTP methods, status codes, resource-based URLs).
+- Version your APIs (e.g., `/api/v1/`) from the start to manage changes gracefully.
+- Implement pagination for all list endpoints that can return a large number of items.
+- Use proper HTTP status codes and provide clear, structured error responses.
+- Add API documentation using tools like OpenAPI/Swagger; keep it updated as the API evolves.
+
+## Performance and Scalability (Backend)
+- Implement caching strategies with tools like Redis for frequently accessed data or expensive computations.
+- Optimize database queries; be mindful of and avoid N+1 query problems, especially with ORMs like Prisma.
+- Consider using a message queue (e.g., RabbitMQ, Kafka) for offloading long-running tasks or inter-service communication if the architecture grows complex.
+
+## Real-time Communication (Backend - e.g., Socket.io server-side)
+- Implement proper authentication and authorization for socket connections.
+- Use rooms/namespaces effectively for multi-tenant isolation or targeted communication.
+- Implement heartbeat/ping mechanisms to monitor connection health and handle disconnections gracefully.
+- Add rate limiting for real-time events to prevent abuse.
+- Ensure efficient data serialization and deserialization for messages.
+
+## AI Assistant Guidelines (Backend)
+
+**Note:** For specific AI assistant guidelines related to backend development, please refer to the comprehensive `ai-assistant-guidelines.mdc` file.
+
+## Project Structure Standards (Backend)
+
+### Example File Organization (`backend/src/`)
+```
+backend/src/
+├── config/              # Environment variables, configuration settings
+├── controllers/         # Request handlers, route logic (Express.js controllers)
+├── dto/                 # Data Transfer Objects (if not using inline types or Zod for validation schemas)
+├── middleware/          # Express.js middleware (auth, error handling, logging)
+├── routes/              # API route definitions
+├── services/            # Business logic, interaction with data layers
+├── generated/           # Auto-generated code (e.g., Prisma client)
+├── types/               # Custom TypeScript types and interfaces for the backend
+├── utils/               # Utility functions specific to the backend
+└── server.ts            # Main application entry point, server setup
+
+backend/
+├── prisma/
+│   ├── schema.prisma    # Prisma schema definition
+│   └── migrations/      # Database migration files
+```
+
+### Naming Conventions (Backend)
+- Use PascalCase for class names (e.g., `UserService`, `AuthController`) and TypeScript interfaces/types.
+- Use camelCase for functions, variables, and methods (e.g., `getUserById`, `createProfile`).
+- Use kebab-case for file names (e.g., `user.service.ts`, `auth.routes.ts`).

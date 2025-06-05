@@ -1,0 +1,69 @@
+---
+description: Frontend development standards for React/TypeScript applications, covering component architecture, performance optimization, state management, real-time features, and accessibility requirements. Ensures consistent UI/UX development practices and optimal user experience.
+globs: 
+alwaysApply: false
+---
+---
+rule_type: development_standards
+description: "Frontend development standards for React/TypeScript applications, covering component architecture, performance optimization, state management, real-time features, and accessibility requirements. Ensures consistent UI/UX development practices and optimal user experience."
+priority: high
+applies_to: ["frontend", "react_development", "ui_components"]
+---
+
+# Frontend Development Guidelines
+
+## TypeScript and Code Quality (Frontend)
+- Use TypeScript for all new frontend code; ensure `strict` mode is enabled in `tsconfig.json`.
+- Define interfaces or types for all API responses, props, and complex data structures.
+- Use proper type annotations; actively avoid the `any` type.
+- Implement proper error boundaries in React components to gracefully handle runtime errors.
+- Use ESLint and Prettier with a consistent configuration for code linting and formatting.
+
+## Performance and Scalability (Frontend)
+- Implement caching strategies with tools like React Query or Zustand for frequently accessed data to minimize API calls.
+- Use lazy loading for React components and routes where appropriate (e.g., `React.lazy`, dynamic `import()` with routing libraries).
+- Implement proper image optimization (e.g., compression, responsive images using `<picture>` or `srcset`, consider using a CDN).
+- Use `React.memo()` for expensive component re-renders when props are unlikely to change frequently.
+- Implement virtual scrolling (virtualization) for large lists to improve rendering performance.
+
+## Real-time Communication (Frontend)
+- When using Socket.io (or similar) on the client-side:
+    - Implement proper connection handling (connect, disconnect, error events).
+    - Include robust reconnection logic with backoff strategies.
+    - Handle real-time events idempotently where possible.
+    - Ensure authentication tokens are securely transmitted and handled for socket connections.
+
+## AI Assistant Guidelines (Frontend)
+
+**Note:** For specific AI assistant guidelines related to frontend development, including React and video conferencing, please refer to the comprehensive `ai-assistant-guidelines.mdc` file. The video conferencing specifics previously in this section are also covered or can be inferred from the general AI guidelines on media handling and user experience.
+
+### Video Conferencing Specific Rules (Frontend)
+- Always handle camera/microphone permission requests gracefully, providing clear user feedback.
+- Implement proper WebRTC error handling (e.g., connection failures, stream issues) and fallbacks where possible.
+- Use STUN/TURN servers for NAT traversal; ensure these are configured correctly.
+- Consider implementing bandwidth optimization techniques (e.g., adjusting video quality based on connection speed).
+- Add proper cleanup for media streams (e.g., stopping tracks, releasing resources) when components unmount or calls end to prevent memory leaks.
+
+## Project Structure Standards (Frontend)
+
+### File Organization (`frontend/src/`)
+```
+frontend/src/
+├── components/           # Reusable UI components
+│   ├── ui/              # Basic UI elements (Button, Input, Card, etc.)
+│   └── features/        # Feature-specific components (e.g., auth, student-profile)
+├── pages/               # Page components, typically mapped to routes
+├── hooks/               # Custom React hooks (e.g., useAuth, useStudentProfile)
+├── utils/               # Utility functions (e.g., formatters, validators)
+├── types/               # Global TypeScript type definitions and interfaces
+├── services/            # API call definitions, client-side service layers
+├── stores/              # State management (e.g., Zustand, Redux Toolkit stores)
+├── constants/           # Application-wide constants (e.g., API_BASE_URL, route paths)
+└── assets/              # Static assets (images, fonts, etc.)
+```
+
+### Naming Conventions (Frontend)
+- Use PascalCase for React components and TypeScript interfaces/types (e.g., `StudentProfilePage`, `UserProfile`).
+- Use camelCase for functions, variables, methods, and hook names (e.g., `fetchUserData`, `currentUser`, `useAuth`).
+- Use kebab-case for file names (e.g., `student-profile-form.tsx`, `auth-service.ts`) and CSS class names if not using utility-first CSS.
+- Prefix custom hooks with `use` (e.g., `useStudentProfile`, `useDebounce`).

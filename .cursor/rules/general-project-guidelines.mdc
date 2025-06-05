@@ -1,0 +1,67 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+rule_type: architecture_guidelines
+description: "Project-wide architectural standards covering file organization, naming conventions, emergency procedures, and general development practices. Provides foundational guidelines that apply across all project components and establishes consistency in project structure and AI assistant behavior."
+priority: medium
+applies_to: ["project_structure", "naming_conventions", "emergency_protocols", "ai_assistance"]
+---
+
+# General Project Guidelines for Tutoring CRM Platform
+
+## Project Structure Philosophy
+- Maintain a clear separation of concerns between `frontend`, `backend`, and other service directories.
+- Follow the prescribed file organization within `src/` directories as a baseline. Adapt as needed for clarity and scalability.
+
+## Naming Conventions (General)
+- Use PascalCase for React components and TypeScript interfaces (unless specified otherwise for backend entities).
+- Use camelCase for functions, variables, and methods.
+- Use SCREAMING_SNAKE_CASE for constants.
+- Use kebab-case for general file names (e.g., utility modules, configuration files) and routes.
+- Prefix custom React hooks with 'use' (e.g., useAuth, useScheduling).
+
+## Regular Maintenance
+
+### General
+- Analyze user behavior for UX improvements.
+
+## Quick Reference Commands
+
+### Development Setup
+```bash
+# Install dependencies
+npm install
+
+# Start development servers (ensure you are in the correct directory: ./frontend or ./backend, or use root script if available)
+# Example for frontend:
+# cd frontend && npm run dev
+# Example for backend:
+# cd backend && npm run dev
+
+# Run tests (similar to dev, run in specific workspace or use root script)
+# npm test
+
+# Check TypeScript (run in specific workspace)
+# npm run type-check # (if script exists, otherwise use npx tsc --noEmit)
+
+# Lint code (run in specific workspace)
+# npm run lint
+
+# Format code (run in specific workspace)
+# npm run format
+```
+
+### Security Checks (General)
+```bash
+# Audit dependencies (run in specific workspace or root if applicable)
+# npm audit
+
+# Check for secrets in code (requires tool like git-secrets)
+# git secrets --scan
+
+# Run security linting (if a specific script like 'lint:security' exists)
+# npm run lint:security
+```

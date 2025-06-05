@@ -1,0 +1,70 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+rule_type: security_rules
+description: "Critical security standards for educational data protection, including API key management, authentication/authorization, data privacy compliance (FERPA/COPPA/GDPR), and educational platform-specific security requirements. These rules are mandatory for all development work involving sensitive student and tutor information."
+priority: critical
+applies_to: ["backend", "frontend", "infrastructure", "data_handling"]
+---
+
+# Security Standards for Tutoring CRM Platform
+
+## Security Rules - Critical for Educational Data
+
+### API Key and Secret Management
+- NEVER hardcode API keys, database credentials, or any secrets in source code.
+- Use environment variables (.env files) for all sensitive configuration.
+- Add .env files to .gitignore immediately when creating the project.
+- Use different environment files for development, staging, and production.
+- Rotate API keys regularly and use least-privilege principles.
+
+### Authentication and Authorization
+- Implement JWT tokens with expiration times (max 24 hours).
+- Use bcrypt with salt rounds ≥ 12 for password hashing.
+- Require strong passwords: minimum 8 characters, mixed case, numbers, symbols.
+- Implement role-based access control (RBAC) for tutors, students, and admins.
+- Add rate limiting to login endpoints to prevent brute force attacks.
+- Implement session timeout for idle users (30 minutes max).
+
+### Data Protection and Privacy
+- Validate and sanitize ALL user inputs on both client and server.
+- Use parameterized queries or ORM to prevent SQL injection.
+- Implement CORS properly - never use wildcard (*) in production.
+- Encrypt sensitive data at rest using AES-256.
+- Use HTTPS everywhere - no HTTP in production.
+- Implement proper error handling without exposing system details.
+
+### Educational Data Compliance
+- Follow FERPA guidelines for student educational records.
+- Implement COPPA compliance for users under 13.
+- Add GDPR compliance features (data export, deletion, consent).
+- Log access to student data for audit trails.
+- Implement data retention policies.
+
+## Regular Maintenance (Security Specific)
+
+### Security Updates
+- Update dependencies weekly.
+- Run security audits monthly.
+- Review access logs quarterly.
+- Conduct penetration testing before major releases.
+- Update security documentation as features are added.
+
+## Quick Reference Commands (Security Specific)
+
+### Security Checks
+```bash
+# Audit dependencies (run in specific workspace or root if applicable)
+# npm audit
+
+# Check for secrets in code (requires tool like git-secrets)
+# git secrets --scan
+
+# Run security linting (if a specific script like 'lint:security' exists)
+# npm run lint:security
+```
+
+**Remember: Security is not optional when handling educational data. When in doubt, choose the more secure option.**
