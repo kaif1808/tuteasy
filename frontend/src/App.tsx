@@ -15,6 +15,8 @@ import { StudentProfileDemo } from './pages/StudentProfileDemo';
 import { ComponentTest } from './pages/ComponentTest';
 import { StudentProfileTest } from './pages/StudentProfileTest';
 import { TutorSearchPage } from './pages/TutorSearchPage';
+import { BookingPage } from './pages/BookingPage';
+import { BookingDemo } from './pages/BookingDemo';
 import { useAuthStore } from './stores/authStore';
 
 function App() {
@@ -43,11 +45,15 @@ function App() {
           
           {/* Demo routes */}
           <Route path="/demo/student-profile" element={<StudentProfileDemo />} />
+          <Route path="/demo/booking" element={<BookingDemo />} />
           <Route path="/test/components" element={<ComponentTest />} />
           <Route path="/test/student-profile" element={<StudentProfileTest />} />
           
           {/* Public search route */}
           <Route path="/find-a-tutor" element={<TutorSearchPage />} />
+          
+          {/* Booking routes */}
+          <Route path="/book/:tutorId" element={<BookingPage />} />
           
           {/* Protected routes */}
           <Route 
