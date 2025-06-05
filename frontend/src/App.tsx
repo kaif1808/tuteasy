@@ -14,6 +14,7 @@ import { StudentProfilePage } from './components/features/student-profile/pages/
 import { StudentProfileDemo } from './pages/StudentProfileDemo';
 import { ComponentTest } from './pages/ComponentTest';
 import { StudentProfileTest } from './pages/StudentProfileTest';
+import { TutorSearchPage } from './pages/TutorSearchPage';
 import { useAuthStore } from './stores/authStore';
 
 function App() {
@@ -44,6 +45,9 @@ function App() {
           <Route path="/demo/student-profile" element={<StudentProfileDemo />} />
           <Route path="/test/components" element={<ComponentTest />} />
           <Route path="/test/student-profile" element={<StudentProfileTest />} />
+          
+          {/* Public search route */}
+          <Route path="/find-a-tutor" element={<TutorSearchPage />} />
           
           {/* Protected routes */}
           <Route 
