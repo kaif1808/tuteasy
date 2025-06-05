@@ -43,8 +43,8 @@ CREATE TABLE tutor_profiles (
     bio TEXT,
     profile_image_url VARCHAR(500),
     hourly_rate DECIMAL(10,2) NOT NULL,
-    subjects TEXT[], -- Array of subjects
-    qualifications TEXT[],
+    subjects TEXT[], -- Denormalized array of combined subject strings (e.g., "A-Level Economics", "GCSE Maths") for display. Primary data in tutor_subjects table.
+    qualifications TEXT[], -- Denormalized array of qualification summaries for display. Primary data in tutor_qualifications table.
     experience_years INTEGER DEFAULT 0,
     languages TEXT[] DEFAULT ARRAY['English'],
     timezone VARCHAR(50) DEFAULT 'UTC',
@@ -72,8 +72,10 @@ CREATE TABLE student_profiles (
     id VARCHAR(30) PRIMARY KEY DEFAULT generate_cuid(),
     user_id VARCHAR(30) UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     parent_id VARCHAR(30) REFERENCES users(id),
-    grade_level VARCHAR(50),
+    year_group VARCHAR(15), -- e.g., "Year 1", "Year 10", "Year 13"
+    key_stage VARCHAR(10), -- e.g., "KS1", "KS2", "KS3", "KS4", "KS5" (Optional)
     school_name VARCHAR(200),
+    school_type VARCHAR(50), -- e.g., "State Comprehensive", "Grammar School", "Independent School" (Optional)
     subjects_of_interest TEXT[],
     learning_goals TEXT,
     special_needs TEXT,
@@ -134,7 +136,7 @@ CREATE TABLE sessions (
     cancelled_by VARCHAR(30) REFERENCES users(id),
     cancelled_at TIMESTAMP WITH TIME ZONE,
     price DECIMAL(10,2) NOT NULL,
-    currency VARCHAR(3) DEFAULT 'USD',
+    currency VARCHAR(3) DEFAULT 'GBP',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -223,7 +225,7 @@ CREATE TABLE payments (
     payer_id VARCHAR(30) NOT NULL REFERENCES users(id),
     payee_id VARCHAR(30) NOT NULL REFERENCES users(id),
     amount DECIMAL(10,2) NOT NULL,
-    currency VARCHAR(3) DEFAULT 'USD',
+    currency VARCHAR(3) DEFAULT 'GBP',
     status payment_status NOT NULL DEFAULT 'PENDING',
     payment_method VARCHAR(50),
     stripe_payment_intent_id VARCHAR(255) UNIQUE,
@@ -378,3 +380,47 @@ CREATE TRIGGER update_tutor_profiles_updated_at BEFORE UPDATE ON tutor_profiles
 3. Maintain backward compatibility during deployments
 4. Document all schema changes in migration files
 5. Implement rollback procedures for critical changes 
+
+### Tutor Subjects
+Stores the specific subjects a tutor teaches and at what level.
+The combination of subject_name and qualification_level forms the offering, e.g., "A-Level Economics".
+
+```sql
+CREATE TABLE tutor_subjects (
+    id VARCHAR(30) PRIMARY KEY DEFAULT generate_cuid(),
+    tutor_id VARCHAR(30) NOT NULL REFERENCES tutor_profiles(id) ON DELETE CASCADE,
+    subject_name VARCHAR(100) NOT NULL, -- e.g., "Mathematics", "Physics", "Economics"
+    qualification_level VARCHAR(50) NOT NULL, -- e.g., "GCSE", "A-Level", "KS3", "Primary", "Degree"
+    years_experience INTEGER,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Indexes
+CREATE INDEX idx_tutor_subjects_tutor_id ON tutor_subjects(tutor_id);
+CREATE INDEX idx_tutor_subjects_name_level ON tutor_subjects(subject_name, qualification_level);
+```
+
+### Tutor Qualifications
+Stores formal qualifications held by tutors, such as degrees, teaching certificates, and background checks.
+
+```sql
+CREATE TABLE tutor_qualifications (
+    id VARCHAR(30) PRIMARY KEY DEFAULT generate_cuid(),
+    tutor_id VARCHAR(30) NOT NULL REFERENCES tutor_profiles(id) ON DELETE CASCADE,
+    qualification_type VARCHAR(100) NOT NULL, -- e.g., "Degree", "PGCE", "QTS", "DBS Check", "A-Level Award", "Subject Specific Certificate"
+    qualification_name VARCHAR(255) NOT NULL, -- e.g., "BSc Computer Science", "Qualified Teacher Status", "Enhanced DBS Certificate", "Grade 8 Piano"
+    institution VARCHAR(255),
+    document_url VARCHAR(500), -- Link to uploaded certificate/document
+    verification_status VARCHAR(20) DEFAULT 'PENDING', -- e.g., PENDING, VERIFIED, REJECTED
+    issue_date DATE,
+    expiry_date DATE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Indexes
+CREATE INDEX idx_tutor_qualifications_tutor_id ON tutor_qualifications(tutor_id);
+CREATE INDEX idx_tutor_qualifications_type ON tutor_qualifications(qualification_type);
+CREATE INDEX idx_tutor_qualifications_verification_status ON tutor_qualifications(verification_status);
+``` 

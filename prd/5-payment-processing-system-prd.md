@@ -16,7 +16,7 @@ The Payment Processing System handles all financial transactions within the tuto
   - Credit/debit card processing
   - Bank transfer/ACH support
   - Digital wallet integration (Apple Pay, Google Pay)
-  - International payment support
+  - International payment support (Note: For UK-market focus, ensure GBP (£) is a primary supported currency from MVP, with user-facing defaults set to GBP.)
   - Currency conversion
 
 - **Invoicing System**
@@ -122,7 +122,7 @@ CREATE TABLE invoices (
     sender_id INTEGER REFERENCES users(id), -- tutor/agency
     recipient_id INTEGER REFERENCES users(id), -- student/parent
     amount_due DECIMAL(10,2) NOT NULL,
-    currency VARCHAR(3) DEFAULT 'USD',
+    currency VARCHAR(3) DEFAULT 'GBP',
     status VARCHAR(20) DEFAULT 'draft', -- draft, sent, paid, overdue, canceled
     due_date TIMESTAMP WITH TIME ZONE,
     issue_date TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -155,7 +155,7 @@ CREATE TABLE transactions (
     invoice_id INTEGER REFERENCES invoices(id),
     payment_method_id INTEGER REFERENCES payment_methods(id),
     amount DECIMAL(10,2) NOT NULL,
-    currency VARCHAR(3) DEFAULT 'USD',
+    currency VARCHAR(3) DEFAULT 'GBP',
     status VARCHAR(20) NOT NULL, -- pending, completed, failed, refunded
     processor VARCHAR(20) NOT NULL, -- stripe, paypal, etc.
     processor_transaction_id VARCHAR(255),
@@ -175,7 +175,7 @@ CREATE TABLE subscriptions (
     plan_name VARCHAR(100) NOT NULL,
     billing_cycle VARCHAR(20) NOT NULL, -- weekly, monthly, quarterly, yearly
     amount DECIMAL(10,2) NOT NULL,
-    currency VARCHAR(3) DEFAULT 'USD',
+    currency VARCHAR(3) DEFAULT 'GBP',
     status VARCHAR(20) DEFAULT 'active', -- active, paused, canceled
     payment_method_id INTEGER REFERENCES payment_methods(id),
     next_billing_date TIMESTAMP WITH TIME ZONE,

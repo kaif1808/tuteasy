@@ -14,7 +14,7 @@ The Student Management System provides comprehensive tools for tracking student 
 ### Core Features (MVP)
 - **Student Profiles**
   - Basic student information (name, age, contact)
-  - Academic background and grade level
+  - Educational history and Year Group/Key Stage (e.g., Year 10, KS4)
   - Learning preferences and goals
   - Parent/guardian information
   - Special needs or accommodations
@@ -108,7 +108,8 @@ CREATE TABLE students (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id),
     date_of_birth DATE,
-    grade_level VARCHAR(20),
+    year_group VARCHAR(15), -- e.g., "Year 1", "Year 10", "Year 13"
+    key_stage VARCHAR(10), -- e.g., "KS1", "KS2", "KS3", "KS4", "KS5" (Optional, can be derived or also stored)
     school VARCHAR(255),
     learning_style VARCHAR(50),
     special_needs TEXT,

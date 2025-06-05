@@ -15,15 +15,15 @@ The Tutor Profile Management System serves as the foundation for tutor identity 
   - Basic information (name, email, phone, location)
   - Professional bio and introduction (up to 500 words)
   - Profile photo upload with automatic resizing
-  - Subject expertise listings with proficiency levels
-  - Education background and qualifications
+  - Subject expertise listings: displayed as "Qualification Level Subject" (e.g., "A-Level Maths", "GCSE History"). Tutors will input Qualification Level and Subject separately.
+  - Education background and qualifications (e.g., QTS, PGCE, BSc Physics, A-Levels. Explicitly mention options for UK qualifications and experience with UK exam boards like AQA, Edexcel, OCR).
   - Teaching experience history
-  - **Qualification Levels (MVP)**: GCSE/IGCSE, A-Level, and IB level teaching capabilities
+  - **Qualification Levels (MVP)**: GCSE/IGCSE, A-Level, IB, BTEC, Key Stage 1-4, Primary level teaching capabilities. These levels will be selectable when a tutor adds a subject they teach.
 
 - **Qualification Levels Specification (MVP)**
   - **GCSE/IGCSE**: General Certificate of Secondary Education and International GCSE
     - Target age group: 14-16 years
-    - Foundation level qualifications
+    - Key UK qualifications for this age group
     - Core subjects: Mathematics, English, Sciences, Humanities
   - **A-Level**: Advanced Level qualifications
     - Target age group: 16-18 years  
@@ -32,7 +32,15 @@ The Tutor Profile Management System serves as the foundation for tutor identity 
   - **IB**: International Baccalaureate
     - Target age group: 16-19 years
     - International curriculum standard
-    - Holistic education approach with six subject groups
+    - Holistic education approach
+  - **BTEC**: Business and Technology Education Council qualifications
+    - Vocational qualifications, various levels corresponding to GCSE/A-Level equivalence.
+  - **Key Stages (KS1-KS4)**: Covering primary and secondary education prior to GCSE/A-Level.
+    - KS1: Years 1-2 (Ages 5-7)
+    - KS2: Years 3-6 (Ages 7-11)
+    - KS3: Years 7-9 (Ages 11-14)
+    - KS4: Years 10-11 (Ages 14-16, typically leads to GCSEs)
+  - **Primary**: General primary school level teaching.
 
 - **Credential Verification**
   - DBS/Background check certificate upload
@@ -141,20 +149,20 @@ CREATE TABLE tutors (
 CREATE TABLE tutor_subjects (
     id SERIAL PRIMARY KEY,
     tutor_id INTEGER REFERENCES tutors(id),
-    subject_name VARCHAR(100),
-    proficiency_level VARCHAR(20), -- beginner, intermediate, advanced, expert
-    qualification_levels TEXT[], -- For MVP: 'GCSE', 'IGCSE', 'A_LEVEL', 'IB'
+    subject_name VARCHAR(100), -- e.g., "Mathematics", "Physics", "Economics"
+    qualification_level VARCHAR(50), -- e.g., "GCSE", "A-Level", "KS3", "Degree"
+    -- The combination of subject_name and qualification_level gives entries like "A-Level Physics"
     years_experience INTEGER,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Qualifications
+-- Qualifications (This table stores formal qualifications like degrees, teaching certs, DBS)
 CREATE TABLE tutor_qualifications (
     id SERIAL PRIMARY KEY,
     tutor_id INTEGER REFERENCES tutors(id),
-    qualification_type VARCHAR(50), -- degree, certification, dbs, etc.
+    qualification_type VARCHAR(50), -- e.g., "Degree", "PGCE", "QTS", "DBS Check", "A-Level Award"
     institution VARCHAR(255),
-    qualification_name VARCHAR(255),
+    qualification_name VARCHAR(255), -- e.g., "BSc Computer Science", "Qualified Teacher Status", "Enhanced DBS Certificate"
     document_url VARCHAR(255),
     verification_status VARCHAR(20) DEFAULT 'pending',
     issue_date DATE,
@@ -208,18 +216,18 @@ DELETE /api/tutors/profile/image        // Delete profile image
 // Subjects & Qualifications
 GET    /api/tutors/subjects             // Get tutor subjects
 POST   /api/tutors/subjects             // Add subject
-PUT    /api/tutors/subjects/:id         // Update subject
+PUT    /api/tutors/subjects/:id         // Update subject (subject_name and/or qualification_level)
 DELETE /api/tutors/subjects/:id         // Remove subject
 
-POST   /api/tutors/qualifications       // Upload qualification
-GET    /api/tutors/qualifications       // Get qualifications
-PUT    /api/tutors/qualifications/:id   // Update qualification status
-DELETE /api/tutors/qualifications/:id   // Remove qualification
+POST   /api/tutors/qualifications       // Upload formal qualification (degree, QTS, DBS)
+GET    /api/tutors/qualifications       // Get formal qualifications
+PUT    /api/tutors/qualifications/:id   // Update formal qualification status
+DELETE /api/tutors/qualifications/:id   // Remove formal qualification
 
 // Public Profile Views
 GET    /api/tutors/:id/public           // Get public tutor profile
-GET    /api/tutors/search               // Search tutors with qualification level filters
-                                       // Query params: ?qualification_levels=GCSE,A_LEVEL,IB
+GET    /api/tutors/search               // Search tutors. Query params for combined subject/level, e.g. ?subject=A-Level%20Mathematics
+                                       // Query params: ?qualification_levels=GCSE,A_LEVEL,IB (This might be better as a filter on the combined subject string)
 ```
 
 ## Implementation Timeline

@@ -71,7 +71,7 @@ This document defines the Minimum Viable Product (MVP) for a tutoring Customer R
 - As a parent, I want to monitor my child's tutoring activities
 
 **Technical Requirements**:
-- Student registration with grade level and subjects
+- Student registration with Year Group/Key Stage and subjects (e.g., Year 10, KS4, GCSE Maths)
 - Learning goals and preferences tracking
 - Session history with notes and ratings
 - Parent account linking for minors
