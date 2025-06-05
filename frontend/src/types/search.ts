@@ -3,11 +3,14 @@
 export interface TutorSearchParams {
   subjects?: string[];
   levels?: string[];
+  availability?: string[];
+  minRate?: number;
+  maxRate?: number;
   keywords?: string;
   sortBy?: 'relevance' | 'experience' | 'hourlyRateMin' | 'hourlyRateMax' | 'rating';
   sortOrder?: 'asc' | 'desc';
-  page?: number;
-  limit?: number;
+  page: number;
+  limit: number;
 }
 
 export interface TutorSubject {
@@ -106,7 +109,7 @@ export interface SearchStatisticsResponse {
 
 // Qualification levels for the search dropdown
 export const QUALIFICATION_LEVELS = [
-  { value: 'EARLY_YEARS', label: 'Early Years' },
+  { value: 'EARLY_YEARS', label: 'Early Years (3-5)' },
   { value: 'PRIMARY', label: 'Primary' },
   { value: 'KS1', label: 'Key Stage 1' },
   { value: 'KS2', label: 'Key Stage 2' },
@@ -135,4 +138,13 @@ export const SORT_OPTIONS = [
   { value: 'hourlyRateMin', label: 'Price (Low to High)' },
   { value: 'hourlyRateMax', label: 'Price (High to Low)' },
   { value: 'rating', label: 'Rating' },
-] as const; 
+] as const;
+
+export const AVAILABILITY_OPTIONS = [
+  { value: 'WEEKDAY_MORNINGS', label: 'Weekday Mornings' },
+  { value: 'WEEKDAY_AFTERNOONS', label: 'Weekday Afternoons' },
+  { value: 'WEEKDAY_EVENINGS', label: 'Weekday Evenings' },
+  { value: 'WEEKEND_MORNINGS', label: 'Weekend Mornings' },
+  { value: 'WEEKEND_AFTERNOONS', label: 'Weekend Afternoons' },
+  { value: 'WEEKEND_EVENINGS', label: 'Weekend Evenings' },
+]; 

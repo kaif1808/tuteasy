@@ -28,6 +28,20 @@ export class SearchService {
         });
       }
       
+      if (params.availability && params.availability.length > 0) {
+        params.availability.forEach(avail => {
+          queryParams.append('availability[]', avail);
+        });
+      }
+
+      if (params.minRate !== undefined) {
+        queryParams.append('minRate', params.minRate.toString());
+      }
+
+      if (params.maxRate !== undefined) {
+        queryParams.append('maxRate', params.maxRate.toString());
+      }
+      
       // Add other parameters
       if (params.keywords) {
         queryParams.append('keywords', params.keywords);

@@ -14,7 +14,7 @@ import type {
   SearchPagination,
 } from '../types/search';
 import type { MultiSelectOption } from '../components/ui/MultiSelect';
-import { QUALIFICATION_LEVELS, SORT_OPTIONS } from '../types/search';
+import { QUALIFICATION_LEVELS, SORT_OPTIONS, AVAILABILITY_OPTIONS } from '../types/search';
 
 export const TutorSearchPage: React.FC = () => {
   // Search state
@@ -39,6 +39,9 @@ export const TutorSearchPage: React.FC = () => {
   const [keywords, setKeywords] = useState('');
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
   const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
+  const [selectedAvailability, setSelectedAvailability] = useState<string[]>([]);
+  const [minRate, setMinRate] = useState('');
+  const [maxRate, setMaxRate] = useState('');
   const [sortBy, setSortBy] = useState<string>('relevance');
 
   // Load available filter options on component mount
@@ -93,6 +96,9 @@ export const TutorSearchPage: React.FC = () => {
       keywords: keywords.trim() || undefined,
       subjects: selectedSubjects.length > 0 ? selectedSubjects : undefined,
       levels: selectedLevels.length > 0 ? selectedLevels : undefined,
+      availability: selectedAvailability.length > 0 ? selectedAvailability : undefined,
+      minRate: minRate ? Number(minRate) : undefined,
+      maxRate: maxRate ? Number(maxRate) : undefined,
       sortBy: sortBy as TutorSearchParams['sortBy'],
       page: 1, // Reset to first page on new search
     };
@@ -133,6 +139,9 @@ export const TutorSearchPage: React.FC = () => {
     setKeywords('');
     setSelectedSubjects([]);
     setSelectedLevels([]);
+    setSelectedAvailability([]);
+    setMinRate('');
+    setMaxRate('');
     setSortBy('relevance');
     const newParams: TutorSearchParams = {
       page: 1,
@@ -166,9 +175,9 @@ export const TutorSearchPage: React.FC = () => {
             <CardTitle>Search Filters</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-4">
               {/* Keywords Search */}
-              <div>
+              <div className="lg:col-span-1">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Keywords
                 </label>
@@ -182,7 +191,7 @@ export const TutorSearchPage: React.FC = () => {
               </div>
 
               {/* Subjects Filter */}
-              <div>
+              <div className="lg:col-span-1">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Subjects
                 </label>
@@ -196,7 +205,7 @@ export const TutorSearchPage: React.FC = () => {
               </div>
 
               {/* Qualification Levels Filter */}
-              <div>
+              <div className="lg:col-span-1">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Qualification Levels
                 </label>
@@ -210,9 +219,50 @@ export const TutorSearchPage: React.FC = () => {
                   placeholder="Select levels..."
                 />
               </div>
+              
+              {/* Availability Filter */}
+              <div className="lg:col-span-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Availability
+                </label>
+                <MultiSelect
+                  options={AVAILABILITY_OPTIONS}
+                  value={selectedAvailability}
+                  onChange={setSelectedAvailability}
+                  placeholder="Select availability..."
+                />
+              </div>
+
+              {/* Price Range Filter */}
+              <div className="lg:col-span-2 flex items-end gap-4">
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Min Price (£/hour)
+                  </label>
+                  <Input
+                    type="number"
+                    placeholder="Min rate"
+                    value={minRate}
+                    onChange={(e) => setMinRate(e.target.value)}
+                    min="0"
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Max Price (£/hour)
+                  </label>
+                  <Input
+                    type="number"
+                    placeholder="Max rate"
+                    value={maxRate}
+                    onChange={(e) => setMaxRate(e.target.value)}
+                    min="0"
+                  />
+                </div>
+              </div>
 
               {/* Sort By */}
-              <div>
+              <div className="lg:col-span-1">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Sort By
                 </label>
@@ -242,25 +292,23 @@ export const TutorSearchPage: React.FC = () => {
             </div>
 
             {/* Active Filters Display */}
-            {(selectedSubjects.length > 0 || selectedLevels.length > 0 || keywords.trim()) && (
+            {(selectedSubjects.length > 0 || selectedLevels.length > 0 || keywords.trim() || selectedAvailability.length > 0 || minRate || maxRate) && (
               <div className="mt-4 flex flex-wrap gap-2">
                 <span className="text-sm font-medium text-gray-700">Active filters:</span>
                 {keywords.trim() && (
                   <Badge variant="secondary">Keywords: {keywords}</Badge>
                 )}
                 {selectedSubjects.map(subject => (
-                  <Badge key={subject} variant="secondary">
-                    Subject: {subject}
-                  </Badge>
+                  <Badge key={subject} variant="secondary">Subject: {subject}</Badge>
                 ))}
-                {selectedLevels.map(level => {
-                  const levelOption = QUALIFICATION_LEVELS.find(opt => opt.value === level);
-                  return (
-                    <Badge key={level} variant="secondary">
-                      Level: {levelOption?.label || level}
-                    </Badge>
-                  );
-                })}
+                {selectedLevels.map(level => (
+                  <Badge key={level} variant="secondary">Level: {level}</Badge>
+                ))}
+                {selectedAvailability.map(avail => (
+                  <Badge key={avail} variant="secondary">{AVAILABILITY_OPTIONS.find(o => o.value === avail)?.label}</Badge>
+                ))}
+                {minRate && <Badge variant="secondary">Min Rate: £{minRate}</Badge>}
+                {maxRate && <Badge variant="secondary">Max Rate: £{maxRate}</Badge>}
               </div>
             )}
           </CardContent>
