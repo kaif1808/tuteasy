@@ -1,5 +1,32 @@
 # TutEasy Development Status
 
+## ✅ Completed - Role-Based Dashboards (NEW)
+
+### Dashboard Implementation ✅ COMPLETE
+- [x] **TutorDashboard** (`frontend/src/pages/TutorDashboard.tsx`)
+  - [x] Displays a personalized welcome message for the tutor.
+  - [x] Provides navigation to "Manage Your Profile", "View Your Schedule", and "Messages".
+  - [x] Shows quick stats for students, lessons, and earnings.
+- [x] **StudentDashboard** (`frontend/src/pages/StudentDashboard.tsx`)
+  - [x] Displays a personalized welcome message for the student.
+  - [x] Provides navigation to "Find a Tutor", "Manage Your Profile", and "My Lessons".
+  - [x] Includes a section for learning resources.
+- [x] **ParentDashboard** (`frontend/src/pages/ParentDashboard.tsx`)
+  - [x] Displays a personalized welcome message for the parent.
+  - [x] Provides navigation to "Find a Tutor for Your Child", "Manage Your Profile", and "Manage Student Profiles".
+  - [x] Includes a "Family Learning Hub" with resources.
+- [x] **Admin Dashboard Placeholder**
+  - [x] A simple placeholder dashboard for the admin role.
+
+### Routing and Architecture ✅ COMPLETE
+- [x] **DashboardRedirect** (`frontend/src/components/DashboardRedirect.tsx`)
+  - [x] A new component that intelligently redirects users to their respective dashboards based on their role (`TUTOR`, `STUDENT`, `PARENT`, `ADMIN`).
+- [x] **Updated App.tsx**
+  - [x] The main `/dashboard` route now uses `DashboardRedirect` to handle role-based routing.
+  - [x] Added protected routes for `/tutor-profile`, `/student-profile`, and `/parent-profile`.
+- [x] **Old Dashboard Cleanup**
+  - [x] Removed the outdated `Dashboard.tsx` file, replacing it with the new role-specific components.
+
 ## ✅ Completed - UK Educational System & IB Integration (NEW)
 
 ### Database Schema Enhancement ✅ COMPLETE

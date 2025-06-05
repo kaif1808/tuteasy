@@ -6,11 +6,11 @@ import { ForgotPassword } from './pages/ForgotPassword';
 import { ResetPassword } from './pages/ResetPassword';
 import { VerifyEmailNotice } from './pages/VerifyEmailNotice';
 import { VerifyEmail } from './pages/VerifyEmail';
-import { Dashboard } from './pages/Dashboard';
+import { DashboardRedirect } from './components/DashboardRedirect';
 import { ProtectedRoute } from './components/ProtectedRoute';
-// TODO: Re-enable TutorProfilePage once TypeScript errors in its dependencies are resolved
-// import { TutorProfilePage } from './components/features/tutor-profile/pages/TutorProfilePage';
+import { TutorProfilePage } from './components/features/tutor-profile/pages/TutorProfilePage';
 import { StudentProfilePage } from './components/features/student-profile/pages/StudentProfilePage';
+import { ParentProfilePage } from './components/features/parent-profile/pages/ParentProfilePage';
 import { StudentProfileDemo } from './pages/StudentProfileDemo';
 import { ComponentTest } from './pages/ComponentTest';
 import { StudentProfileTest } from './pages/StudentProfileTest';
@@ -54,25 +54,31 @@ function App() {
             path="/dashboard" 
             element={
               <ProtectedRoute>
-                <Dashboard />
+                <DashboardRedirect />
               </ProtectedRoute>
             } 
           />
-          {/* TODO: Re-enable TutorProfilePage route once TypeScript errors in its dependencies are resolved
           <Route 
-            path="/profile" 
+            path="/tutor-profile" 
             element={
               <ProtectedRoute>
                 <TutorProfilePage />
               </ProtectedRoute>
             } 
           />
-          */}
           <Route 
             path="/student-profile" 
             element={
               <ProtectedRoute>
                 <StudentProfilePage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/parent-profile" 
+            element={
+              <ProtectedRoute>
+                <ParentProfilePage />
               </ProtectedRoute>
             } 
           />
