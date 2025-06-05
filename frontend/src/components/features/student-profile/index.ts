@@ -1,6 +1,17 @@
-// Export main components
+// Legacy exports for backward compatibility
+export type {
+  StudentProfile,
+  StudentProfileFormData,
+  StudentProfileResponse,
+  LearningStyle,
+  User,
+  ApiError,
+  FormErrors,
+  ProfileSectionProps,
+} from './types';
+
 export { StudentProfileForm } from './components/StudentProfileForm';
-export { StudentProfilePage } from './pages/StudentProfilePage';
+export { studentProfileApi } from './services/studentProfileApi';
 
 // Export hooks
 export {
@@ -16,17 +27,39 @@ export {
   studentProfileKeys,
 } from './hooks/useStudentProfile';
 
-// Export API service
-export { studentProfileApi } from './services/studentProfileApi';
-
-// Export types
+// Enhanced UK/IB exports
 export type {
-  StudentProfile,
-  StudentProfileFormData,
-  StudentProfileResponse,
-  LearningStyle,
-  User,
-  ApiError,
-  FormErrors,
-  ProfileSectionProps,
-} from './types'; 
+  UKYearGroup,
+  IBProgramme,
+  UKSchoolType,
+  QualificationLevel,
+  EnhancedStudentProfile,
+  SubjectInterest,
+  EnhancedStudentProfileFormData
+} from './types/ukIbTypes';
+
+export {
+  UK_YEAR_GROUP_OPTIONS,
+  IB_PROGRAMME_OPTIONS,
+  UK_SCHOOL_TYPE_OPTIONS,
+  UK_EXAM_BOARDS,
+  getSubjectsForAcademicLevel,
+  getQualificationLevelsForYear
+} from './types/ukIbTypes';
+
+export {
+  enhancedStudentProfileSchema,
+  subjectInterestSchema,
+  validateAcademicLevel,
+  getTargetGradeOptions,
+  validateAcademicProgression
+} from './utils/ukIbValidation';
+
+export type { SubjectInterestFormData } from './utils/ukIbValidation';
+
+export { UKIBStudentProfileForm } from './components/UKIBStudentProfileForm';
+export { 
+  EnhancedStudentProfileService,
+  enhancedStudentProfileKeys 
+} from './services/enhancedStudentProfileService';
+export { StudentProfilePage } from './pages/StudentProfilePage'; 
