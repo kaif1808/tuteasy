@@ -89,6 +89,7 @@ model Tutor {
   verificationStatus  VerificationStatus  @default(PENDING)
   isActive            Boolean             @default(true)
   profileCompleteness Int                 @default(0) // Percentage 0-100
+  availability        Availability[]      @default([])
   
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
@@ -112,6 +113,15 @@ enum VerificationStatus {
   PENDING
   VERIFIED
   REJECTED
+}
+
+enum Availability {
+  WEEKDAY_MORNINGS
+  WEEKDAY_AFTERNOONS
+  WEEKDAY_EVENINGS
+  WEEKEND_MORNINGS
+  WEEKEND_AFTERNOONS
+  WEEKEND_EVENINGS
 }
 
 // Tutor subjects with proficiency levels

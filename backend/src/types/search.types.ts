@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { Availability } from '@prisma/client';
 
 // Search request validation schema
 export const tutorSearchSchema = z.object({
@@ -13,6 +14,13 @@ export const tutorSearchSchema = z.object({
     'UNDERGRADUATE', 'POSTGRADUATE', 'ADULT_EDUCATION', 'OTHER'
   ] as const)).optional(),
   
+  // Availability filter
+  availability: z.array(z.nativeEnum(Availability)).optional(),
+
+  // Rate filters
+  minRate: z.coerce.number().positive().optional(),
+  maxRate: z.coerce.number().positive().optional(),
+
   // Keyword search in bio, qualifications
   keywords: z.string().max(255).optional(),
   
@@ -81,6 +89,9 @@ export interface TutorSearchResponse {
   filters: {
     subjects?: string[];
     levels?: string[];
+    availability?: string[];
+    minRate?: number;
+    maxRate?: number;
     keywords?: string;
     sortBy: string;
     sortOrder: string;

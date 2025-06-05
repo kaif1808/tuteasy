@@ -8,7 +8,7 @@ export class SearchService {
    * Search tutors with filtering, sorting, and pagination
    */
   async searchTutors(params: TutorSearchParams): Promise<TutorSearchResponse> {
-    const { subjects, levels, keywords, sortBy, sortOrder, page, limit } = params;
+    const { subjects, levels, keywords, sortBy, sortOrder, page, limit, availability, minRate, maxRate } = params;
     
     // Build the where clause
     const whereClause: any = {
@@ -38,6 +38,27 @@ export class SearchService {
             in: levels,
           },
         },
+      };
+    }
+
+    // Availability filtering
+    if (availability && availability.length > 0) {
+      whereClause.availability = {
+        hasSome: availability,
+      };
+    }
+
+    // Rate filtering
+    if (minRate !== undefined) {
+      whereClause.hourlyRateMin = {
+        ...whereClause.hourlyRateMin,
+        gte: minRate,
+      };
+    }
+    if (maxRate !== undefined) {
+      whereClause.hourlyRateMax = {
+        ...whereClause.hourlyRateMax,
+        lte: maxRate,
       };
     }
 
@@ -242,6 +263,9 @@ export class SearchService {
       filters: {
         subjects,
         levels,
+        availability,
+        minRate,
+        maxRate,
         keywords,
         sortBy,
         sortOrder,
