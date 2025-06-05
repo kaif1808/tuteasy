@@ -39,6 +39,7 @@ model User {
   // Relations
   tutor             Tutor?
   studentProfile    StudentProfile?
+  parentProfile     ParentProfile?
   childrenProfiles  StudentProfile[] @relation("StudentParent")
   refreshTokens     RefreshToken[]
 
@@ -405,4 +406,30 @@ enum NotificationType {
   PROFILE_VERIFIED
   QUALIFICATION_VERIFIED
   SYSTEM_ANNOUNCEMENT
+}
+
+// Parent profile management
+model ParentProfile {
+  id                    String    @id @default(uuid())
+  userId                String    @unique
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Parent-specific information
+  firstName             String?
+  lastName              String?
+  phoneNumber           String?
+  occupation            String?
+  emergencyContact      String?   @db.Text // JSON string for contact details
+  
+  // Preferences
+  communicationPreference String[] @default(["EMAIL"]) // EMAIL, SMS, PHONE
+  timezone              String    @default("UTC")
+  
+  // Settings
+  profileCompleteness   Int       @default(0) // Percentage 0-100
+  
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
 }
