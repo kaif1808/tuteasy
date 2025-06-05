@@ -197,6 +197,109 @@
 - [x] Helpful tips and guidance for optimal profile photos
 - [x] Responsive design with mobile-friendly interface
 
+## ✅ Completed - Parent Profile Backend Management ✅ COMPLETE (NEW)
+
+### Backend Implementation ✅ COMPLETE
+- [x] **ParentProfile Validation Schema** (`backend/src/validation/parentProfile.validation.ts`)
+  - [x] Comprehensive Zod validation for parent profile creation and updates
+  - [x] Emergency contact nested validation with optional fields
+  - [x] Communication preference array validation (EMAIL, SMS, PHONE)
+  - [x] Profile completeness calculation helper function
+  - [x] TypeScript type inference for CreateParentProfileData and UpdateParentProfileData
+
+- [x] **ParentProfile Service Layer** (`backend/src/services/parentProfile.service.ts`)
+  - [x] ParentProfileService class with full CRUD operations
+  - [x] getParentProfile(userId) - retrieves parent profile with proper error handling
+  - [x] createParentProfile(userId, data) - creates new profile with completeness calculation
+  - [x] updateParentProfile(userId, data) - updates existing profile with data merging
+  - [x] deleteParentProfile(userId) - removes parent profile
+  - [x] parentProfileExists(userId) - checks profile existence
+  - [x] getProfileCompleteness(userId) - returns completion percentage
+  - [x] JSON serialization/deserialization for emergency contact data
+  - [x] Proper TypeScript typing with Prisma client integration
+
+- [x] **ParentProfile Controller Layer** (`backend/src/controllers/parentProfile.controller.ts`)
+  - [x] ParentProfileController class with REST API handlers
+  - [x] GET /api/profiles/parent - retrieve parent profile
+  - [x] POST /api/profiles/parent - create new parent profile
+  - [x] PUT /api/profiles/parent - update existing parent profile
+  - [x] DELETE /api/profiles/parent - delete parent profile
+  - [x] GET /api/profiles/parent/completeness - get profile completion status
+  - [x] Comprehensive error handling with proper HTTP status codes
+  - [x] Input validation with Zod schema integration
+  - [x] JSON parsing for emergency contact data in responses
+
+- [x] **ParentProfile Routes** (`backend/src/routes/parentProfile.routes.ts`)
+  - [x] Protected routes with JWT authentication middleware
+  - [x] Role-based access control (PARENT role required)
+  - [x] RESTful route structure following established patterns
+  - [x] Integration with validation middleware for POST/PUT endpoints
+
+- [x] **Server Integration** (`backend/src/server.ts`)
+  - [x] Parent profile routes integrated at `/api/profiles/parent`
+  - [x] Proper middleware chain with authentication and authorization
+  - [x] Consistent with existing API route patterns
+
+- [x] **Database Integration** 
+  - [x] Prisma client regenerated to include ParentProfile model
+  - [x] Full compatibility with existing ParentProfile schema
+  - [x] Proper relationship handling with User model
+  - [x] Emergency contact stored as JSON string in database
+
+### Testing Infrastructure ✅ COMPLETE
+- [x] **Service Layer Tests** (`backend/src/tests/parentProfile.service.test.ts`)
+  - [x] Comprehensive unit tests for all ParentProfileService methods
+  - [x] Test coverage for success cases, error cases, and edge cases
+  - [x] Validation of profile completeness calculation
+  - [x] Emergency contact handling test scenarios
+
+- [x] **Controller Layer Tests** (`backend/src/tests/parentProfile.controller.test.ts`)
+  - [x] Complete unit tests for all ParentProfileController endpoints
+  - [x] HTTP status code validation for all scenarios
+  - [x] Request/response payload validation
+  - [x] Error handling and validation error testing
+
+### API Endpoints Available
+
+**Base URL:** `/api/profiles/parent`
+**Authentication:** Required (JWT token with PARENT role)
+
+1. **GET /** - Retrieve parent profile
+   - Returns complete parent profile with parsed emergency contact
+   - Status: 200 (success), 404 (not found), 500 (error)
+
+2. **POST /** - Create new parent profile
+   - Accepts parent profile data with validation
+   - Status: 201 (created), 409 (already exists), 400 (validation error), 500 (error)
+
+3. **PUT /** - Update existing parent profile
+   - Partial updates supported with data merging
+   - Status: 200 (updated), 404 (not found), 400 (validation error), 500 (error)
+
+4. **DELETE /** - Delete parent profile
+   - Removes parent profile permanently
+   - Status: 204 (deleted), 404 (not found), 500 (error)
+
+5. **GET /completeness** - Get profile completion percentage
+   - Returns completion percentage (0-100)
+   - Status: 200 (success), 500 (error)
+
+### Security & Validation Features
+- [x] Role-based access control ensuring only PARENT users can access endpoints
+- [x] Comprehensive input validation using Zod schemas
+- [x] JWT authentication required for all endpoints
+- [x] Emergency contact data properly sanitized and validated
+- [x] Phone number format validation with international support
+- [x] Email format validation for emergency contacts
+- [x] Profile completeness calculation for user guidance
+
+### Integration with Frontend
+- [x] API structure matches frontend component expectations
+- [x] Emergency contact JSON structure compatible with frontend forms
+- [x] Communication preference arrays properly handled
+- [x] Timezone validation ensuring proper format
+- [x] Error responses structured for frontend error handling
+
 ## ✅ Completed - Email Service Integration
 
 ### Email System ✅ COMPLETE
@@ -343,89 +446,110 @@
 
 ## 🗃️ Enhanced File Structure (UK/IB Integration)
 
-```
-tuteasy/
-├── docs/
-│   └── database-schema.md            ✅ Enhanced with UK/IB system
-├── prd/
-│   ├── 1-tutor-profile-management-prd.md    ✅ Updated for UK/IB qualifications
-│   ├── 5-payment-processing-system-prd.md   ✅ Updated for GBP focus
-│   ├── 6-student-management-system-prd.md   ✅ Updated for UK/IB academic levels
-│   └── mvp-crm-zoom-prd.md                  ✅ Updated for UK terminology
-├── backend/
-│   ├── prisma/
-│   │   └── schema.prisma             ✅ Enhanced with UK/IB enums and models
-│   └── src/
-│       ├── controllers/
-│       │   └── authController.ts     ✅ Complete
-│       ├── services/
-│       │   ├── authService.ts        ✅ Complete
-│       │   └── emailService.ts       ✅ Complete
-│       ├── middleware/
-│       │   ├── auth.ts               ✅ Complete
-│       │   └── validate.ts           ✅ Complete (TODO: Add UK/IB validation)
-│       ├── routes/
-│       │   └── authRoutes.ts         ✅ Complete
-│       └── types/
-│           └── auth.ts               ✅ Complete (TODO: Add UK/IB types)
-└── frontend/
-    └── src/
-        ├── components/
-        │   ├── ui/
-        │   │   ├── Button.tsx        ✅ Complete
-        │   │   └── Input.tsx         ✅ Complete
-        │   └── ProtectedRoute.tsx    ✅ Complete
-        ├── pages/
-        │   ├── Login.tsx             ✅ Complete
-        │   ├── Register.tsx          ✅ Complete
-        │   ├── ForgotPassword.tsx    ✅ Complete
-        │   ├── ResetPassword.tsx     ✅ Complete
-        │   ├── VerifyEmailNotice.tsx ✅ Complete
-        │   ├── VerifyEmail.tsx       ✅ Complete
-        │   └── Dashboard.tsx         ✅ Complete
-        ├── services/
-        │   ├── api.ts                ✅ Refactored for type safety
-        │   └── authService.ts        ✅ Complete
-        ├── stores/
-        │   └── authStore.ts          ✅ Complete
-        ├── hooks/
-        │   └── useAuth.ts            ✅ Complete
-        └── utils/
-            └── cn.ts                 ✅ Complete
-```
+## ✅ Completed - Parent Profile Backend Management ✅ COMPLETE (NEW)
 
-## 🌍 UK/IB Educational System Coverage
+### Backend Implementation ✅ COMPLETE
+- [x] **ParentProfile Validation Schema** (`backend/src/validation/parentProfile.validation.ts`)
+  - [x] Comprehensive Zod validation for parent profile creation and updates
+  - [x] Emergency contact nested validation with optional fields
+  - [x] Communication preference array validation (EMAIL, SMS, PHONE)
+  - [x] Profile completeness calculation helper function
+  - [x] TypeScript type inference for CreateParentProfileData and UpdateParentProfileData
 
-### ✅ UK National Curriculum Support
-- **Early Years Foundation Stage**: Nursery, Reception (Ages 3-5)
-- **Key Stage 1**: Years 1-2 (Ages 5-7) - Foundation subjects
-- **Key Stage 2**: Years 3-6 (Ages 7-11) - Core skills development
-- **Key Stage 3**: Years 7-9 (Ages 11-14) - Broad curriculum introduction
-- **Key Stage 4**: Years 10-11 (Ages 14-16) - GCSE preparation and completion
-- **Key Stage 5**: Years 12-13 (Ages 16-18) - A-Levels, BTEC Level 3, IB DP
+- [x] **ParentProfile Service Layer** (`backend/src/services/parentProfile.service.ts`)
+  - [x] ParentProfileService class with full CRUD operations
+  - [x] getParentProfile(userId) - retrieves parent profile with proper error handling
+  - [x] createParentProfile(userId, data) - creates new profile with completeness calculation
+  - [x] updateParentProfile(userId, data) - updates existing profile with data merging
+  - [x] deleteParentProfile(userId) - removes parent profile
+  - [x] parentProfileExists(userId) - checks profile existence
+  - [x] getProfileCompleteness(userId) - returns completion percentage
+  - [x] JSON serialization/deserialization for emergency contact data
+  - [x] Proper TypeScript typing with Prisma client integration
 
-### ✅ International Baccalaureate Framework
-- **PYP (Primary Years Programme)**: Ages 3-12, inquiry-based learning
-- **MYP (Middle Years Programme)**: Ages 11-16, interdisciplinary approach
-- **DP (Diploma Programme)**: Ages 16-19, university preparation
-  - Standard Level (SL) and Higher Level (HL) subjects
-  - Core components: Extended Essay, Theory of Knowledge, CAS
-- **CP (Career-related Programme)**: Ages 16-19, career and academic integration
+- [x] **ParentProfile Controller Layer** (`backend/src/controllers/parentProfile.controller.ts`)
+  - [x] ParentProfileController class with REST API handlers
+  - [x] GET /api/profiles/parent - retrieve parent profile
+  - [x] POST /api/profiles/parent - create new parent profile
+  - [x] PUT /api/profiles/parent - update existing parent profile
+  - [x] DELETE /api/profiles/parent - delete parent profile
+  - [x] GET /api/profiles/parent/completeness - get profile completion status
+  - [x] Comprehensive error handling with proper HTTP status codes
+  - [x] Input validation with Zod schema integration
+  - [x] JSON parsing for emergency contact data in responses
 
-### ✅ UK Qualification Recognition
-- **Academic**: GCSEs, IGCSEs, A-Levels, AS-Levels
-- **Vocational**: BTEC Levels 1-3, NVQs
-- **Teaching**: QTS, PGCE, PGDE, Teaching Diplomas
-- **Professional**: DBS checks, Safeguarding certificates
-- **IB Teaching**: IB Certificates, Category 1-3 Workshops
+- [x] **ParentProfile Routes** (`backend/src/routes/parentProfile.routes.ts`)
+  - [x] Protected routes with JWT authentication middleware
+  - [x] Role-based access control (PARENT role required)
+  - [x] RESTful route structure following established patterns
+  - [x] Integration with validation middleware for POST/PUT endpoints
 
-### ✅ School System Compatibility
-- State schools (Comprehensive, Grammar)
-- Academies and Free Schools
-- Independent/Private schools
-- Sixth Form and FE Colleges
-- International schools
-- Special schools and home education
+- [x] **Server Integration** (`backend/src/server.ts`)
+  - [x] Parent profile routes integrated at `/api/profiles/parent`
+  - [x] Proper middleware chain with authentication and authorization
+  - [x] Consistent with existing API route patterns
+
+- [x] **Database Integration** 
+  - [x] Prisma client regenerated to include ParentProfile model
+  - [x] Full compatibility with existing ParentProfile schema
+  - [x] Proper relationship handling with User model
+  - [x] Emergency contact stored as JSON string in database
+
+### Testing Infrastructure ✅ COMPLETE
+- [x] **Service Layer Tests** (`backend/src/tests/parentProfile.service.test.ts`)
+  - [x] Comprehensive unit tests for all ParentProfileService methods
+  - [x] Mocked Prisma client for isolated testing
+  - [x] Test coverage for success cases, error cases, and edge cases
+  - [x] Validation of profile completeness calculation
+  - [x] Emergency contact handling test scenarios
+
+- [x] **Controller Layer Tests** (`backend/src/tests/parentProfile.controller.test.ts`)
+  - [x] Complete unit tests for all ParentProfileController endpoints
+  - [x] Mocked service layer for isolated controller testing
+  - [x] HTTP status code validation for all scenarios
+  - [x] Request/response payload validation
+  - [x] Error handling and validation error testing
+
+### API Endpoints Available
+
+**Base URL:** `/api/profiles/parent`
+**Authentication:** Required (JWT token with PARENT role)
+
+1. **GET /** - Retrieve parent profile
+   - Returns complete parent profile with parsed emergency contact
+   - Status: 200 (success), 404 (not found), 500 (error)
+
+2. **POST /** - Create new parent profile
+   - Accepts parent profile data with validation
+   - Status: 201 (created), 409 (already exists), 400 (validation error), 500 (error)
+
+3. **PUT /** - Update existing parent profile
+   - Partial updates supported with data merging
+   - Status: 200 (updated), 404 (not found), 400 (validation error), 500 (error)
+
+4. **DELETE /** - Delete parent profile
+   - Removes parent profile permanently
+   - Status: 204 (deleted), 404 (not found), 500 (error)
+
+5. **GET /completeness** - Get profile completion percentage
+   - Returns completion percentage (0-100)
+   - Status: 200 (success), 500 (error)
+
+### Security & Validation Features
+- [x] Role-based access control ensuring only PARENT users can access endpoints
+- [x] Comprehensive input validation using Zod schemas
+- [x] JWT authentication required for all endpoints
+- [x] Emergency contact data properly sanitized and validated
+- [x] Phone number format validation with international support
+- [x] Email format validation for emergency contacts
+- [x] Profile completeness calculation for user guidance
+
+### Integration with Frontend
+- [x] API structure matches frontend component expectations
+- [x] Emergency contact JSON structure compatible with frontend forms
+- [x] Communication preference arrays properly handled
+- [x] Timezone validation ensuring proper format
+- [x] Error responses structured for frontend error handling
 
 ## 🚀 Migration & Deployment Readiness
 
@@ -748,110 +872,4 @@ The search and matching system provides a solid foundation for tutor discovery! 
 ## ✅ Completed - UK/IB Backend Testing & Validation System (NEW)
 
 ### Enhanced Backend Validation Infrastructure ✅ COMPLETE (NEW)
-- [x] **Comprehensive Validation Schemas** (`backend/src/types/validation.ts`)
-  - [x] UK Year Group, Key Stage, IB Programme, School Type, Qualification Level enums
-  - [x] Enhanced subject interest schema with exam boards and target grades
-  - [x] Cross-field validation rules with automatic UK Key Stage derivation
-  - [x] IB year validation based on programme type (PYP: 1-6, MYP: 1-5, DP/CP: 1-2)
-  - [x] Mutual exclusivity validation between UK and IB academic systems
-  - [x] Separate create/update schemas with enhanced error handling
-
-- [x] **Enhanced Student Profile Service** (`backend/src/services/studentProfile.service.ts`)
-  - [x] Enhanced createEnhancedStudentProfile and updateEnhancedStudentProfile methods
-  - [x] Automatic academic level display generation and Key Stage derivation
-  - [x] Subject interest validation with academic level restrictions
-  - [x] Profile completeness calculation enhanced for UK/IB fields
-  - [x] Legacy subject format parsing for backward compatibility
-  - [x] Helper methods for data transformation and validation
-
-- [x] **Updated API Controllers** (`backend/src/controllers/studentProfile.controller.ts`)
-  - [x] Enhanced endpoints: POST/PUT `/api/v1/student/profile/enhanced`
-  - [x] Subject validation endpoint: POST `/api/v1/student/profile/validate-subjects`
-  - [x] Updated parent access controls and linking routes
-  - [x] Backward compatibility maintained with existing legacy endpoints
-  - [x] Comprehensive error handling for validation failures
-
-### Comprehensive Test Suite ✅ COMPLETE (NEW)
-- [x] **Jest Testing Infrastructure Setup**
-  - [x] `jest.config.js` with TypeScript support and proper test environment
-  - [x] Test dependencies installed (@types/jest, @types/supertest, supertest, ts-jest)
-  - [x] `tests/setup.ts` with Prisma mocks and test configuration
-  - [x] Fixed duplicate QualificationLevel enum issues in Prisma schema
-
-- [x] **Validation Test Suite** (`tests/validation.test.ts`) - **26 Passing Tests**
-  - [x] UK Year Group validation with automatic Key Stage derivation testing
-  - [x] IB Programme validation with year range validation (PYP, MYP, DP, CP)
-  - [x] Academic system mutual exclusivity enforcement testing
-  - [x] Subject interest validation with qualification level restrictions
-  - [x] School information, learning information, timezone validation
-  - [x] All qualification levels and partial update scenarios tested
-  - [x] Cross-field validation and error message verification
-
-- [x] **API Integration Test Suite** (`tests/student-profile-api.test.ts`) - **13 Passing Tests**
-  - [x] Enhanced schema validation for UK and IB profile creation
-  - [x] Subject validation logic with academic level restrictions:
-    - [x] A-Levels restricted to Year 12/13 students
-    - [x] GCSEs restricted to Year 10/11 students  
-    - [x] IB DP subjects restricted to DP programme students
-  - [x] Academic level processing and automatic derivation testing
-  - [x] Backward compatibility testing with legacy profile data formats
-  - [x] Error handling and validation failure response testing
-
-### Academic Validation Rules ✅ COMPLETE (NEW)
-- [x] **UK Educational System Validation**
-  - [x] Automatic Key Stage derivation from Year Group selection
-  - [x] Subject compatibility validation based on Key Stage requirements
-  - [x] GCSE subject restrictions (Year 10-11 only)
-  - [x] A-Level subject restrictions (Year 12-13 only)
-  - [x] BTEC Level compatibility with Year Group progression
-
-- [x] **IB Programme Validation**
-  - [x] PYP year validation (Years 1-6 with age 3-12 mapping)
-  - [x] MYP year validation (Years 1-5 with age 11-16 mapping)
-  - [x] DP year validation (Years 1-2 with age 16-19 mapping)
-  - [x] CP year validation (Years 1-2 with career focus validation)
-  - [x] IB subject group compatibility with programme levels
-  - [x] Standard Level (SL) and Higher Level (HL) restrictions for DP
-
-### Test Results & Quality Assurance ✅ COMPLETE (NEW)
-- [x] **39+ Tests Passing Successfully**
-  - [x] 100% test coverage for UK/IB validation schemas
-  - [x] 100% test coverage for enhanced API endpoints
-  - [x] All academic level restrictions working correctly
-  - [x] Automatic derivation functions validated (Key Stage from Year Group)
-  - [x] Cross-system validation preventing UK/IB conflicts
-  - [x] Backward compatibility confirmed with legacy data
-
-- [x] **Data Integrity Validation**
-  - [x] Subject interest validation with academic level compatibility
-  - [x] Target grade validation based on qualification systems
-  - [x] Academic progression rules enforced correctly
-  - [x] Profile completeness calculation enhanced for UK/IB fields
-  - [x] Error handling provides clear, actionable feedback messages
-
-- [x] **Performance & Compatibility Testing**
-  - [x] Enhanced profile creation and update operations optimized
-  - [x] Legacy profile format parsing working correctly
-  - [x] Database constraints validated (no additional migrations needed)
-  - [x] API response times within acceptable limits for complex validation
-
-### Professional UI/UX Features ✅ COMPLETE (NEW)
-- [x] **Card-based Information Architecture**
-  - [x] Academic level selection with visual comparison cards
-  - [x] Subject interest display with qualification badges
-  - [x] Profile completeness indicators with progress visualization
-  - [x] Help sections with expandable information panels
-
-- [x] **Advanced Form Interactions**
-  - [x] Dynamic form sections based on academic level selection
-  - [x] Real-time validation with contextual error messages
-  - [x] Modal-based subject addition with comprehensive options
-  - [x] Drag-and-drop style interactions for better user experience
-  - [x] Professional loading states and skeleton screens
-
-- [x] **Accessibility and Responsiveness**
-  - [x] ARIA labels and keyboard navigation support
-  - [x] Screen reader compatibility throughout
-  - [x] Mobile-first responsive design with touch-friendly interactions
-  - [x] High contrast mode support and focus management
-  - [x] Comprehensive error state handling with recovery options
+- [x] **Comprehensive Validation Schemas** (`

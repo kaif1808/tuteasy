@@ -5,6 +5,7 @@ import rateLimit from 'express-rate-limit';
 import { config } from './config';
 import tutorProfileRoutes from './routes/tutorProfile.routes';
 import studentProfileRoutes from './routes/studentProfile.routes';
+import parentProfileRoutes from './routes/parentProfile.routes';
 import authRoutes from './routes/authRoutes';
 import searchRoutes from './routes/search.routes';
 import { ZodError } from 'zod';
@@ -48,6 +49,7 @@ app.get('/health', (_req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/tutors', tutorProfileRoutes);
 app.use('/api/v1/student', studentProfileRoutes);
+app.use('/api/profiles/parent', parentProfileRoutes);
 app.use('/api/search', searchRoutes);
 
 // Error handling middleware
