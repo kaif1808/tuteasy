@@ -8,6 +8,7 @@ import studentProfileRoutes from './routes/studentProfile.routes';
 import parentProfileRoutes from './routes/parentProfile.routes';
 import authRoutes from './routes/authRoutes';
 import searchRoutes from './routes/search.routes';
+import paymentRoutes from './routes/payment.routes';
 import { ZodError } from 'zod';
 
 const app = express();
@@ -47,10 +48,11 @@ app.get('/health', (_req, res) => {
 
 // API routes
 app.use('/api/auth', authRoutes);
-app.use('/api/tutors', tutorProfileRoutes);
-app.use('/api/v1/student', studentProfileRoutes);
+app.use('/api/profiles/tutor', tutorProfileRoutes);
+app.use('/api/profiles/student', studentProfileRoutes);
 app.use('/api/profiles/parent', parentProfileRoutes);
 app.use('/api/search', searchRoutes);
+app.use('/api/payments', paymentRoutes);
 
 // Error handling middleware
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

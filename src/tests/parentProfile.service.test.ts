@@ -1,8 +1,16 @@
-import { ParentProfileService } from '../src/services/parentProfile.service';
-import { prisma } from '../src/utils/prisma';
+import { ParentProfileService } from '../services/parentProfile.service';
+import { PrismaClient } from '@prisma/client';
+import { prisma } from '../utils/prisma';
 
 // Mock the prisma client
-jest.mock('../src/utils/prisma');
+jest.mock('../utils/prisma', () => ({
+  prisma: {
+    parentProfile: {
+      findUnique: jest.fn(),
+      create: jest.fn(),
+    },
+  } as unknown as PrismaClient,
+}));
 
 describe('ParentProfileService', () => {
   let parentProfileService: ParentProfileService;
