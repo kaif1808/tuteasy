@@ -35,7 +35,7 @@ export class AuthService {
       role: user.role,
     };
     const options: SignOptions = {
-      expiresIn: config.jwt.expiresIn as string,
+      expiresIn: parseInt(config.jwt.expiresIn) * 60 * 60,
     };
     return jwt.sign(payload, config.jwt.secret, options);
   }
@@ -44,7 +44,7 @@ export class AuthService {
   static generateRefreshToken(user: User): string {
     const payload: RefreshTokenPayload = { userId: user.id };
     const options: SignOptions = {
-      expiresIn: config.jwt.refreshExpiresIn as string,
+      expiresIn: parseInt(config.jwt.refreshExpiresIn) * 24 * 60 * 60,
     };
     return jwt.sign(payload, config.jwt.refreshSecret, options);
   }

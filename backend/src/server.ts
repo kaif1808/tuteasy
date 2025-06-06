@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { RequestHandler } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
@@ -25,7 +25,7 @@ const limiter = rateLimit({
   max: 100, // limit each IP to 100 requests per windowMs
   message: 'Too many requests from this IP, please try again later.',
 });
-app.use('/api', limiter);
+app.use('/api', limiter as RequestHandler);
 
 // Stricter rate limiting for auth endpoints
 const authLimiter = rateLimit({
@@ -34,7 +34,7 @@ const authLimiter = rateLimit({
   message: 'Too many authentication attempts, please try again later.',
   skipSuccessfulRequests: true,
 });
-app.use('/api/auth', authLimiter);
+app.use('/api/auth', authLimiter as RequestHandler);
 
 // Body parsing middleware
 app.use(express.json());

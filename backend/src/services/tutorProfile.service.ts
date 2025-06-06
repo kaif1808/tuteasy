@@ -1,4 +1,4 @@
-import { Tutor, TutorSubject, TutorQualification } from '@prisma/client';
+import { Tutor, TutorSubject, TutorQualification, QualificationType } from '@prisma/client';
 import { prisma } from '../utils/prisma';
 import { 
   updateTutorProfileSchema, 
@@ -142,6 +142,7 @@ export class TutorProfileService {
       data: {
         tutorId,
         ...data,
+        qualificationType: data.qualificationType as QualificationType,
         documentUrl,
         documentKey,
       },

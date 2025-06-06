@@ -36,7 +36,7 @@ describe('StudentProfileService', () => {
         parent: null,
       };
 
-      mockPrisma.studentProfile.create.mockResolvedValue(mockProfile as any);
+      (mockPrisma.studentProfile.create as jest.Mock).mockResolvedValue(mockProfile as any);
 
       const profileData = {
         ukYearGroup: UKYearGroup.YEAR_10,
@@ -55,21 +55,18 @@ describe('StudentProfileService', () => {
 
       const result = await studentProfileService.createEnhancedStudentProfile('user-1', profileData);
 
-      expect(mockPrisma.studentProfile.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
-          userId: 'user-1',
-          ukYearGroup: 'YEAR_10',
-          ukKeyStage: 'KS4',
-          schoolName: 'Test Grammar School',
-          schoolType: 'STATE_GRAMMAR',
-          academicLevelDisplay: 'Year 10',
-          subjectsOfInterest: expect.arrayContaining([expect.any(String)]),
-          learningGoals: 'Achieve A* in GCSE Mathematics',
-          timezone: 'Europe/London',
-          profileCompleteness: expect.any(Number)
-        }),
-        include: expect.any(Object)
-      });
+      expect((mockPrisma.studentProfile.create as jest.Mock).mock.calls[0][0]).toEqual(expect.objectContaining({
+        userId: 'user-1',
+        ukYearGroup: 'YEAR_10',
+        ukKeyStage: 'KS4',
+        schoolName: 'Test Grammar School',
+        schoolType: 'STATE_GRAMMAR',
+        academicLevelDisplay: 'Year 10',
+        subjectsOfInterest: expect.arrayContaining([expect.any(String)]),
+        learningGoals: 'Achieve A* in GCSE Mathematics',
+        timezone: 'Europe/London',
+        profileCompleteness: expect.any(Number)
+      }));
 
       expect(result).toEqual(mockProfile);
     });
@@ -90,7 +87,7 @@ describe('StudentProfileService', () => {
         parent: null,
       };
 
-      mockPrisma.studentProfile.create.mockResolvedValue(mockProfile as any);
+      (mockPrisma.studentProfile.create as jest.Mock).mockResolvedValue(mockProfile as any);
 
       const profileData = {
         ibProgramme: IBProgramme.DP,
@@ -107,18 +104,15 @@ describe('StudentProfileService', () => {
 
       const result = await studentProfileService.createEnhancedStudentProfile('user-2', profileData);
 
-      expect(mockPrisma.studentProfile.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
-          userId: 'user-2',
-          ibProgramme: 'DP',
-          ibYear: 1,
-          schoolName: 'International School London',
-          schoolType: 'INTERNATIONAL_SCHOOL',
-          academicLevelDisplay: 'IB Diploma Programme Year 1',
-          profileCompleteness: expect.any(Number)
-        }),
-        include: expect.any(Object)
-      });
+      expect((mockPrisma.studentProfile.create as jest.Mock).mock.calls[0][0]).toEqual(expect.objectContaining({
+        userId: 'user-2',
+        ibProgramme: 'DP',
+        ibYear: 1,
+        schoolName: 'International School London',
+        schoolType: 'INTERNATIONAL_SCHOOL',
+        academicLevelDisplay: 'IB Diploma Programme Year 1',
+        profileCompleteness: expect.any(Number)
+      }));
 
       expect(result).toEqual(mockProfile);
     });
@@ -136,7 +130,7 @@ describe('StudentProfileService', () => {
         parent: null,
       };
 
-      mockPrisma.studentProfile.create.mockResolvedValue(mockProfile as any);
+      (mockPrisma.studentProfile.create as jest.Mock).mockResolvedValue(mockProfile as any);
 
       const profileData = {
         ukYearGroup: UKYearGroup.YEAR_7,
@@ -146,14 +140,11 @@ describe('StudentProfileService', () => {
 
       await studentProfileService.createEnhancedStudentProfile('user-3', profileData);
 
-      expect(mockPrisma.studentProfile.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
-          ukYearGroup: 'YEAR_7',
-          ukKeyStage: 'KS3',
-          academicLevelDisplay: 'Year 7'
-        }),
-        include: expect.any(Object)
-      });
+      expect((mockPrisma.studentProfile.create as jest.Mock).mock.calls[0][0]).toEqual(expect.objectContaining({
+        ukYearGroup: 'YEAR_7',
+        ukKeyStage: 'KS3',
+        academicLevelDisplay: 'Year 7'
+      }));
     });
   });
 
@@ -183,8 +174,8 @@ describe('StudentProfileService', () => {
         updatedAt: new Date(),
       };
 
-      mockPrisma.studentProfile.findUnique.mockResolvedValue(existingProfile as any);
-      mockPrisma.studentProfile.update.mockResolvedValue(updatedProfile as any);
+      (mockPrisma.studentProfile.findUnique as jest.Mock).mockResolvedValue(existingProfile as any);
+      (mockPrisma.studentProfile.update as jest.Mock).mockResolvedValue(updatedProfile as any);
 
       const updateData = {
         ukYearGroup: UKYearGroup.YEAR_10,
@@ -198,12 +189,12 @@ describe('StudentProfileService', () => {
 
       const result = await studentProfileService.updateEnhancedStudentProfile('user-1', updateData);
 
-      expect(mockPrisma.studentProfile.findUnique).toHaveBeenCalledWith({
+      expect((mockPrisma.studentProfile.findUnique as jest.Mock).mock.calls[0][0]).toEqual({
         where: { userId: 'user-1' },
         include: expect.any(Object)
       });
 
-      expect(mockPrisma.studentProfile.update).toHaveBeenCalledWith({
+      expect((mockPrisma.studentProfile.update as jest.Mock).mock.calls[0][0]).toEqual({
         where: { userId: 'user-1' },
         data: expect.objectContaining({
           ukYearGroup: 'YEAR_10',
@@ -220,7 +211,7 @@ describe('StudentProfileService', () => {
     });
 
     it('should throw error when updating non-existent profile', async () => {
-      mockPrisma.studentProfile.findUnique.mockResolvedValue(null);
+      (mockPrisma.studentProfile.findUnique as jest.Mock).mockResolvedValue(null);
 
       const updateData = {
         ukYearGroup: UKYearGroup.YEAR_10
@@ -344,7 +335,7 @@ describe('StudentProfileService', () => {
         parent: null,
       };
 
-      mockPrisma.studentProfile.create.mockResolvedValue(mockProfile as any);
+      (mockPrisma.studentProfile.create as jest.Mock).mockResolvedValue(mockProfile as any);
 
       // Complete profile data
       const completeProfileData = {
@@ -363,7 +354,7 @@ describe('StudentProfileService', () => {
 
       await studentProfileService.createEnhancedStudentProfile('user-1', completeProfileData);
 
-      const createCall = mockPrisma.studentProfile.create.mock.calls[0][0];
+      const createCall = (mockPrisma.studentProfile.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.profileCompleteness).toBeGreaterThan(80);
     });
 
@@ -378,7 +369,7 @@ describe('StudentProfileService', () => {
         parent: null,
       };
 
-      mockPrisma.studentProfile.create.mockResolvedValue(mockProfile as any);
+      (mockPrisma.studentProfile.create as jest.Mock).mockResolvedValue(mockProfile as any);
 
       // Minimal profile data
       const minimalProfileData = {
@@ -389,7 +380,7 @@ describe('StudentProfileService', () => {
 
       await studentProfileService.createEnhancedStudentProfile('user-1', minimalProfileData);
 
-      const createCall = mockPrisma.studentProfile.create.mock.calls[0][0];
+      const createCall = (mockPrisma.studentProfile.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.profileCompleteness).toBeLessThan(50);
     });
   });
@@ -402,7 +393,7 @@ describe('StudentProfileService', () => {
         parentId: null,
       };
 
-      mockPrisma.studentProfile.findUnique.mockResolvedValue(mockProfile as any);
+      (mockPrisma.studentProfile.findUnique as jest.Mock).mockResolvedValue(mockProfile as any);
 
       const hasAccess = await studentProfileService.verifyAccess('user-1', 'user-1');
       expect(hasAccess).toBe(true);
@@ -415,7 +406,7 @@ describe('StudentProfileService', () => {
         parentId: 'parent-1',
       };
 
-      mockPrisma.studentProfile.findUnique.mockResolvedValue(mockProfile as any);
+      (mockPrisma.studentProfile.findUnique as jest.Mock).mockResolvedValue(mockProfile as any);
 
       const hasAccess = await studentProfileService.verifyAccess('user-1', 'parent-1');
       expect(hasAccess).toBe(true);
@@ -428,7 +419,7 @@ describe('StudentProfileService', () => {
         parentId: 'parent-1',
       };
 
-      mockPrisma.studentProfile.findUnique.mockResolvedValue(mockProfile as any);
+      (mockPrisma.studentProfile.findUnique as jest.Mock).mockResolvedValue(mockProfile as any);
 
       const hasAccess = await studentProfileService.verifyAccess('user-1', 'unrelated-user');
       expect(hasAccess).toBe(false);
@@ -446,17 +437,17 @@ describe('StudentProfileService', () => {
         parent: { id: 'parent-1', email: 'parent@example.com', role: 'PARENT' },
       };
 
-      mockPrisma.user.findUnique.mockResolvedValue(mockParent as any);
-      mockPrisma.studentProfile.update.mockResolvedValue(mockUpdatedProfile as any);
+      (mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(mockParent as any);
+      (mockPrisma.studentProfile.update as jest.Mock).mockResolvedValue(mockUpdatedProfile as any);
 
       const result = await studentProfileService.linkParent('user-1', 'parent-1');
 
-      expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
+      expect((mockPrisma.user.findUnique as jest.Mock).mock.calls[0][0]).toEqual({
         where: { id: 'parent-1' },
         select: { role: true }
       });
 
-      expect(mockPrisma.studentProfile.update).toHaveBeenCalledWith({
+      expect((mockPrisma.studentProfile.update as jest.Mock).mock.calls[0][0]).toEqual({
         where: { userId: 'user-1' },
         data: { parentId: 'parent-1' },
         include: expect.any(Object)
@@ -467,7 +458,7 @@ describe('StudentProfileService', () => {
 
     it('should reject linking non-parent user', async () => {
       const mockUser = { id: 'user-1', role: 'STUDENT' };
-      mockPrisma.user.findUnique.mockResolvedValue(mockUser as any);
+      (mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser as any);
 
       await expect(
         studentProfileService.linkParent('user-1', 'user-1')
@@ -475,7 +466,7 @@ describe('StudentProfileService', () => {
     });
 
     it('should reject linking non-existent user', async () => {
-      mockPrisma.user.findUnique.mockResolvedValue(null);
+      (mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(null);
 
       await expect(
         studentProfileService.linkParent('user-1', 'non-existent')
@@ -501,8 +492,8 @@ describe('StudentProfileService', () => {
         updatedAt: new Date(),
       };
 
-      mockPrisma.studentProfile.findUnique.mockResolvedValue(existingProfile as any);
-      mockPrisma.studentProfile.update.mockResolvedValue(updatedProfile as any);
+      (mockPrisma.studentProfile.findUnique as jest.Mock).mockResolvedValue(existingProfile as any);
+      (mockPrisma.studentProfile.update as jest.Mock).mockResolvedValue(updatedProfile as any);
 
       const updateData = {
         learningGoals: 'New learning goals'
@@ -511,7 +502,9 @@ describe('StudentProfileService', () => {
       await studentProfileService.updateEnhancedStudentProfile('user-1', updateData);
 
       // Should handle legacy format without errors
-      expect(mockPrisma.studentProfile.update).toHaveBeenCalled();
+      expect((mockPrisma.studentProfile.update as jest.Mock).mock.calls[0][0]).toEqual(expect.objectContaining({
+        learningGoals: 'New learning goals'
+      }));
     });
 
     it('should parse JSON subject format correctly', async () => {
@@ -537,8 +530,8 @@ describe('StudentProfileService', () => {
         updatedAt: new Date(),
       };
 
-      mockPrisma.studentProfile.findUnique.mockResolvedValue(existingProfile as any);
-      mockPrisma.studentProfile.update.mockResolvedValue(updatedProfile as any);
+      (mockPrisma.studentProfile.findUnique as jest.Mock).mockResolvedValue(existingProfile as any);
+      (mockPrisma.studentProfile.update as jest.Mock).mockResolvedValue(updatedProfile as any);
 
       const updateData = {
         learningGoals: 'New learning goals'
@@ -547,7 +540,9 @@ describe('StudentProfileService', () => {
       await studentProfileService.updateEnhancedStudentProfile('user-1', updateData);
 
       // Should handle JSON format without errors
-      expect(mockPrisma.studentProfile.update).toHaveBeenCalled();
+      expect((mockPrisma.studentProfile.update as jest.Mock).mock.calls[0][0]).toEqual(expect.objectContaining({
+        learningGoals: 'New learning goals'
+      }));
     });
   });
 }); 

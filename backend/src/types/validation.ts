@@ -140,6 +140,7 @@ export const updateTutorProfileSchema = z.object({
 // Subject schemas
 export const createSubjectSchema = z.object({
   subjectName: z.string().min(1).max(100),
+  qualificationLevel: z.enum(['EARLY_YEARS', 'PRIMARY', 'KS1', 'KS2', 'KS3', 'GCSE', 'IGCSE', 'A_LEVEL', 'AS_LEVEL', 'BTEC_LEVEL_1', 'BTEC_LEVEL_2', 'BTEC_LEVEL_3', 'IB_PYP', 'IB_MYP', 'IB_DP_SL', 'IB_DP_HL', 'IB_CP', 'UNDERGRADUATE', 'POSTGRADUATE', 'ADULT_EDUCATION', 'OTHER']),
   proficiencyLevel: z.enum(['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT']),
   yearsExperience: z.number().int().min(0).max(50),
   hourlyRate: z.number().min(0).max(999999.99).optional(),

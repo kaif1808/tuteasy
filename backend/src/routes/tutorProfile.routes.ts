@@ -12,7 +12,7 @@ router.use(authenticate);
 // Profile routes
 router.get('/profile', tutorProfileController.getProfile);
 router.put('/profile', tutorProfileController.updateProfile);
-router.post('/profile/image', uploadImage.single('image'), tutorProfileController.uploadProfileImage);
+router.post('/profile/image', uploadImage.single('image') as any, tutorProfileController.uploadProfileImage);
 router.delete('/profile/image', tutorProfileController.deleteProfileImage);
 
 // Subject routes
@@ -23,7 +23,7 @@ router.delete('/subjects/:id', tutorProfileController.deleteSubject);
 
 // Qualification routes
 router.get('/qualifications', tutorProfileController.getQualifications);
-router.post('/qualifications', uploadDocument.single('document'), tutorProfileController.createQualification);
+router.post('/qualifications', uploadDocument.single('document') as any, tutorProfileController.createQualification);
 router.delete('/qualifications/:id', tutorProfileController.deleteQualification);
 
 export default router; 

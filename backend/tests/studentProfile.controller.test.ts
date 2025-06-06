@@ -20,7 +20,7 @@ describe('StudentProfileController', () => {
 
     // Mock authentication middleware
     app.use((req, res, next) => {
-      req.user = { id: 'user-1', email: 'test@example.com', role: 'STUDENT' };
+      (req as any).user = { id: 'user-1', email: 'test@example.com', role: 'STUDENT' };
       next();
     });
 
@@ -346,7 +346,7 @@ describe('StudentProfileController', () => {
     it('should allow parent to access children profiles', async () => {
       // Override auth middleware for parent user
       app.use((req, res, next) => {
-        req.user = { id: 'parent-1', email: 'parent@example.com', role: 'PARENT' };
+        (req as any).user = { id: 'parent-1', email: 'parent@example.com', role: 'PARENT' };
         next();
       });
 

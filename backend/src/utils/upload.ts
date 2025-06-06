@@ -27,7 +27,7 @@ const documentFileFilter = (_req: Request, file: Express.Multer.File, cb: multer
 // Image upload middleware
 export const uploadImage = multer({
   storage,
-  fileFilter: imageFileFilter,
+  fileFilter: imageFileFilter as any,
   limits: {
     fileSize: config.upload.maxFileSizeMB * 1024 * 1024, // Convert MB to bytes
   },
@@ -36,7 +36,7 @@ export const uploadImage = multer({
 // Document upload middleware
 export const uploadDocument = multer({
   storage,
-  fileFilter: documentFileFilter,
+  fileFilter: documentFileFilter as any,
   limits: {
     fileSize: config.upload.maxFileSizeMB * 1024 * 1024,
   },
