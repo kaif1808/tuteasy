@@ -1,4 +1,3 @@
-/*
 import * as sgMail from '@sendgrid/mail';
 import { config } from '../config';
 
@@ -67,5 +66,4 @@ export class EmailService {
   static async sendWelcomeEmail(_email: string, _userRole: string): Promise<void> {
     return;
   }
-}
-*/ 
+} 

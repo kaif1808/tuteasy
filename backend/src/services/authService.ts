@@ -134,7 +134,7 @@ export class AuthService {
 
     if (!isPasswordValid) {
       // Increment login attempts
-      const updatedUser = await prisma.user.update({
+      await prisma.user.update({
         where: { id: user.id },
         data: {
           loginAttempts: user.loginAttempts + 1,

@@ -47,7 +47,7 @@ describe('ParentProfileService', () => {
     };
 
     it('should return parent profile when found', async () => {
-      mockPrisma.parentProfile.findUnique.mockResolvedValue(mockParentProfile);
+      (mockPrisma.parentProfile.findUnique as jest.Mock).mockResolvedValue(mockParentProfile);
 
       const result = await parentProfileService.getParentProfile('user-1');
 
@@ -58,7 +58,7 @@ describe('ParentProfileService', () => {
     });
 
     it('should return null when profile not found', async () => {
-      mockPrisma.parentProfile.findUnique.mockResolvedValue(null);
+      (mockPrisma.parentProfile.findUnique as jest.Mock).mockResolvedValue(null);
 
       const result = await parentProfileService.getParentProfile('user-1');
 
@@ -98,7 +98,7 @@ describe('ParentProfileService', () => {
     };
 
     it('should create parent profile successfully', async () => {
-      mockPrisma.parentProfile.create.mockResolvedValue(mockCreatedProfile);
+      (mockPrisma.parentProfile.create as jest.Mock).mockResolvedValue(mockCreatedProfile);
 
       const result = await parentProfileService.createParentProfile('user-1', createData);
 
@@ -129,7 +129,7 @@ describe('ParentProfileService', () => {
         emergencyContact: null,
       };
 
-      mockPrisma.parentProfile.create.mockResolvedValue(expectedProfile);
+      (mockPrisma.parentProfile.create as jest.Mock).mockResolvedValue(expectedProfile);
 
       await parentProfileService.createParentProfile('user-1', dataWithoutEmergencyContact);
 
@@ -147,7 +147,7 @@ describe('ParentProfileService', () => {
         timezone: 'Europe/London',
       };
 
-      mockPrisma.parentProfile.create.mockResolvedValue({
+      (mockPrisma.parentProfile.create as jest.Mock).mockResolvedValue({
         ...mockCreatedProfile,
         profileCompleteness: 43, // 3 out of 7 fields completed
       });
@@ -189,7 +189,7 @@ describe('ParentProfileService', () => {
     };
 
     beforeEach(() => {
-      mockPrisma.parentProfile.findUnique.mockResolvedValue(existingProfile);
+      (mockPrisma.parentProfile.findUnique as jest.Mock).mockResolvedValue(existingProfile);
     });
 
     it('should update parent profile successfully', async () => {
@@ -200,7 +200,7 @@ describe('ParentProfileService', () => {
         profileCompleteness: 100,
       };
 
-      mockPrisma.parentProfile.update.mockResolvedValue(updatedProfile);
+      (mockPrisma.parentProfile.update as jest.Mock).mockResolvedValue(updatedProfile);
 
       const result = await parentProfileService.updateParentProfile('user-1', updateData);
 
@@ -217,7 +217,7 @@ describe('ParentProfileService', () => {
     });
 
     it('should throw error when profile not found', async () => {
-      mockPrisma.parentProfile.findUnique.mockResolvedValue(null);
+      (mockPrisma.parentProfile.findUnique as jest.Mock).mockResolvedValue(null);
 
       await expect(
         parentProfileService.updateParentProfile('user-1', updateData)
@@ -238,7 +238,7 @@ describe('ParentProfileService', () => {
         emergencyContact: JSON.stringify(updateWithEmergencyContact.emergencyContact),
       };
 
-      mockPrisma.parentProfile.update.mockResolvedValue(updatedProfile);
+      (mockPrisma.parentProfile.update as jest.Mock).mockResolvedValue(updatedProfile);
 
       await parentProfileService.updateParentProfile('user-1', updateWithEmergencyContact);
 
@@ -253,7 +253,7 @@ describe('ParentProfileService', () => {
 
   describe('deleteParentProfile', () => {
     it('should delete parent profile successfully', async () => {
-      mockPrisma.parentProfile.delete.mockResolvedValue({} as any);
+      (mockPrisma.parentProfile.delete as jest.Mock).mockResolvedValue({} as any);
 
       await parentProfileService.deleteParentProfile('user-1');
 
@@ -265,7 +265,7 @@ describe('ParentProfileService', () => {
 
   describe('parentProfileExists', () => {
     it('should return true when profile exists', async () => {
-      mockPrisma.parentProfile.findUnique.mockResolvedValue({ id: 'parent-1' } as any);
+      (mockPrisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-1' } as any);
 
       const result = await parentProfileService.parentProfileExists('user-1');
 
@@ -277,7 +277,7 @@ describe('ParentProfileService', () => {
     });
 
     it('should return false when profile does not exist', async () => {
-      mockPrisma.parentProfile.findUnique.mockResolvedValue(null);
+      (mockPrisma.parentProfile.findUnique as jest.Mock).mockResolvedValue(null);
 
       const result = await parentProfileService.parentProfileExists('user-1');
 
@@ -292,7 +292,7 @@ describe('ParentProfileService', () => {
         profileCompleteness: 85,
       };
 
-      mockPrisma.parentProfile.findUnique.mockResolvedValue(mockProfile as any);
+      (mockPrisma.parentProfile.findUnique as jest.Mock).mockResolvedValue(mockProfile as any);
 
       const result = await parentProfileService.getProfileCompleteness('user-1');
 
@@ -300,11 +300,29 @@ describe('ParentProfileService', () => {
     });
 
     it('should return 0 when profile does not exist', async () => {
-      mockPrisma.parentProfile.findUnique.mockResolvedValue(null);
+      (mockPrisma.parentProfile.findUnique as jest.Mock).mockResolvedValue(null);
 
       const result = await parentProfileService.getProfileCompleteness('user-1');
 
       expect(result).toBe(0);
+    });
+
+    it('should return 100 for a complete profile', () => {
+      const completeData: UpdateParentProfileData = {
+        firstName: 'John',
+        lastName: 'Doe',
+        phoneNumber: '+44 7123 456789',
+        timezone: 'Europe/London',
+      };
+
+      const completeness = (parentProfileService as any).getProfileCompleteness(completeData);
+      expect(completeness).toBe(100);
+    });
+
+    it('should return 0 for an empty profile', () => {
+      const emptyData = {};
+      const completeness = (parentProfileService as any).getProfileCompleteness(emptyData);
+      expect(completeness).toBe(0);
     });
   });
 }); 
