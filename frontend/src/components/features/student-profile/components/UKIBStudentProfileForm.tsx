@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { 
   Plus, 
   Trash2, 
   GraduationCap, 
   School, 
-  Globe, 
+  // Globe, 
   BookOpen,
   Target,
   Info,
@@ -37,9 +37,9 @@ import {
   UK_EXAM_BOARDS,
   getSubjectsForAcademicLevel,
   getQualificationLevelsForYear,
-  type UKYearGroup,
+  // type UKYearGroup,
   type IBProgramme,
-  type UKSchoolType,
+  // type UKSchoolType,
   type QualificationLevel,
   type SubjectInterest
 } from '../types/ukIbTypes';

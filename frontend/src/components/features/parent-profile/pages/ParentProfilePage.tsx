@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, Edit, User, AlertCircle, CheckCircle } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { ArrowLeft, Edit, User, AlertCircle, Loader2 } from 'lucide-react';
 
 import { Button } from '../../../ui/Button';
 import { ParentProfileForm } from '../components/ParentProfileForm';
+import { ParentProfileService, parentProfileKeys } from '../services/parentProfileService';
+import { useToast, ToastContainer } from '../../../ui/Toast';
 
 import { 
   type ParentProfile, 
@@ -12,31 +15,80 @@ import {
   CommunicationPreference
 } from '../types';
 
-interface ParentProfilePageProps {
-  // These will be connected to API calls and React Query later
-  initialProfile?: ParentProfile | null;
-  isLoading?: boolean;
-  error?: string | null;
-}
-
-export const ParentProfilePage: React.FC<ParentProfilePageProps> = ({
-  initialProfile = null,
-  isLoading = false,
-  error = null,
-}) => {
+export const ParentProfilePage: React.FC = () => {
   const navigate = useNavigate();
-  const [isEditing, setIsEditing] = useState(!initialProfile); // Auto-edit mode for new profiles
-  const [isSaving, setIsSaving] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
-  const [saveSuccess, setSaveSuccess] = useState(false);
+  const queryClient = useQueryClient();
+  const { toasts, addToast, removeToast } = useToast();
+  const [isEditing, setIsEditing] = useState(false);
 
-  // Clear success message after 3 seconds
+  // Query to get existing profile
+  const {
+    data: profile,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: parentProfileKeys.profile(),
+    queryFn: ParentProfileService.getProfile,
+    retry: (failureCount, error: any) => {
+      // Don't retry if it's a 404 (profile doesn't exist)
+      if (error?.response?.status === 404) {
+        return false;
+      }
+      return failureCount < 3;
+    },
+  });
+
+  // Set editing mode if no profile exists
   useEffect(() => {
-    if (saveSuccess) {
-      const timer = setTimeout(() => setSaveSuccess(false), 3000);
-      return () => clearTimeout(timer);
+    if (!isLoading && !profile) {
+      setIsEditing(true);
     }
-  }, [saveSuccess]);
+  }, [isLoading, profile]);
+
+  // Create mutation
+  const createMutation = useMutation({
+    mutationFn: ParentProfileService.createProfile,
+    onSuccess: (data: ParentProfile) => {
+      queryClient.setQueryData(parentProfileKeys.profile(), data);
+      addToast({
+        type: 'success',
+        title: 'Profile Created Successfully',
+        message: 'Your parent profile has been created successfully.',
+      });
+      setIsEditing(false);
+    },
+    onError: (error: any) => {
+      addToast({
+        type: 'error',
+        title: 'Failed to Create Profile',
+        message: error.response?.data?.message || 'An error occurred while creating your profile. Please try again.',
+      });
+    },
+  });
+
+  // Update mutation
+  const updateMutation = useMutation({
+    mutationFn: ParentProfileService.updateProfile,
+    onSuccess: (data: ParentProfile) => {
+      queryClient.setQueryData(parentProfileKeys.profile(), data);
+      addToast({
+        type: 'success',
+        title: 'Profile Updated Successfully',
+        message: 'Your parent profile has been updated successfully.',
+      });
+      setIsEditing(false);
+    },
+    onError: (error: any) => {
+      addToast({
+        type: 'error',
+        title: 'Failed to Update Profile',
+        message: error.response?.data?.message || 'An error occurred while updating your profile. Please try again.',
+      });
+    },
+  });
+
+  const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
   // Transform ParentProfile to form data format
   const transformProfileToFormData = (profile: ParentProfile): ParentProfileFormData => {
@@ -64,87 +116,16 @@ export const ParentProfilePage: React.FC<ParentProfilePageProps> = ({
     };
   };
 
-  // Transform form data to API request format
-  const transformFormDataToRequest = (data: ParentProfileFormData) => {
-    return {
-      firstName: data.firstName?.trim() || undefined,
-      lastName: data.lastName?.trim() || undefined,
-      phoneNumber: data.phoneNumber?.trim() || undefined,
-      occupation: data.occupation?.trim() || undefined,
-      emergencyContact: data.emergencyContact ? JSON.stringify(data.emergencyContact) : undefined,
-      communicationPreference: data.communicationPreference,
-      timezone: data.timezone,
-    };
-  };
-
-  // Placeholder API functions - to be replaced with actual API calls
-  const createParentProfile = async (data: any): Promise<ParentProfile> => {
-    console.log('API Call: Creating parent profile with data:', data);
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Simulate success response
-    return {
-      id: 'temp-id-' + Date.now(),
-      userId: 'current-user-id',
-      ...data,
-      emergencyContact: data.emergencyContact || undefined,
-      profileCompleteness: 85,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-  };
-
-  const updateParentProfile = async (data: any): Promise<ParentProfile> => {
-    console.log('API Call: Updating parent profile with data:', data);
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Simulate success response
-    return {
-      ...initialProfile!,
-      ...data,
-      profileCompleteness: 90,
-      updatedAt: new Date().toISOString(),
-    };
-  };
-
-  const handleFormSubmit = async (data: ParentProfileFormData) => {
-    setIsSaving(true);
-    setSaveError(null);
-    setSaveSuccess(false);
-
-    try {
-      const requestData = transformFormDataToRequest(data);
-      
-      if (initialProfile) {
-        // Update existing profile
-        const updatedProfile = await updateParentProfile(requestData);
-        console.log('Profile updated successfully:', updatedProfile);
-      } else {
-        // Create new profile
-        const newProfile = await createParentProfile(requestData);
-        console.log('Profile created successfully:', newProfile);
-      }
-      
-      setSaveSuccess(true);
-      setIsEditing(false);
-      
-      // TODO: Invalidate React Query cache and update data
-      // queryClient.invalidateQueries(['parentProfile']);
-      
-    } catch (error) {
-      console.error('Failed to save profile:', error);
-      setSaveError(error instanceof Error ? error.message : 'Failed to save profile. Please try again.');
-    } finally {
-      setIsSaving(false);
+  const handleFormSubmit = (data: ParentProfileFormData) => {
+    if (profile) {
+      updateMutation.mutate(data);
+    } else {
+      createMutation.mutate(data);
     }
   };
 
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
-    setSaveError(null);
-    setSaveSuccess(false);
   };
 
   const handleBackClick = () => {
@@ -156,23 +137,25 @@ export const ParentProfilePage: React.FC<ParentProfilePageProps> = ({
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading your profile...</p>
+          <Loader2 className="w-8 h-8 text-blue-600 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Loading your profile...</p>
         </div>
       </div>
     );
   }
 
-  // Error state
-  if (error) {
+  // Error state (only if not a 404)
+  if (error && (error as any)?.response?.status !== 404) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center max-w-md mx-auto p-6">
           <AlertCircle className="h-12 w-12 text-red-600 mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Unable to Load Profile</h2>
-          <p className="text-gray-600 mb-4">{error}</p>
+          <p className="text-gray-600 mb-4">
+            There was an error loading your profile. Please try again.
+          </p>
           <div className="space-x-3">
-            <Button onClick={() => window.location.reload()}>
+            <Button onClick={() => refetch()}>
               Try Again
             </Button>
             <Button variant="outline" onClick={handleBackClick}>
@@ -184,7 +167,7 @@ export const ParentProfilePage: React.FC<ParentProfilePageProps> = ({
     );
   }
 
-  const formInitialData = initialProfile ? transformProfileToFormData(initialProfile) : {};
+  const formInitialData = profile ? transformProfileToFormData(profile) : {};
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -204,22 +187,14 @@ export const ParentProfilePage: React.FC<ParentProfilePageProps> = ({
               <div className="flex items-center">
                 <User className="h-6 w-6 text-blue-600 mr-2" />
                 <h1 className="text-xl font-semibold text-gray-900">
-                  {initialProfile ? 'Manage Your Profile' : 'Create Your Profile'}
+                  {profile ? 'Manage Your Profile' : 'Create Your Profile'}
                 </h1>
               </div>
             </div>
             
             <div className="flex items-center space-x-3">
-              {/* Success indicator */}
-              {saveSuccess && (
-                <div className="flex items-center text-green-600">
-                  <CheckCircle className="h-5 w-5 mr-1" />
-                  <span className="text-sm font-medium">Saved!</span>
-                </div>
-              )}
-              
               {/* Edit toggle for existing profiles */}
-              {initialProfile && !isEditing && (
+              {profile && !isEditing && (
                 <Button
                   variant="outline"
                   onClick={handleEditToggle}
@@ -235,81 +210,76 @@ export const ParentProfilePage: React.FC<ParentProfilePageProps> = ({
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Error Message */}
-        {saveError && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <div className="flex items-center">
-              <AlertCircle className="h-5 w-5 text-red-600 mr-2" />
-              <span className="text-sm font-medium text-red-800">Error saving profile</span>
-            </div>
-            <p className="text-sm text-red-700 mt-1">{saveError}</p>
-          </div>
-        )}
-
         {/* Profile Form or View */}
         {isEditing ? (
           <ParentProfileForm
             initialData={formInitialData}
             onSubmit={handleFormSubmit}
-            isLoading={isSaving}
-            isEditing={!!initialProfile}
+            isLoading={isSubmitting}
+            isEditing={!!profile}
           />
         ) : (
           // Profile View Mode (for existing profiles)
           <div className="max-w-4xl mx-auto">
             <div className="bg-white rounded-lg shadow border border-gray-200 p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900">Your Profile</h2>
-                <Button
-                  variant="outline"
-                  onClick={handleEditToggle}
-                >
+                <h2 className="text-lg font-semibold text-gray-900">Your Profile</h2>
+                <Button onClick={handleEditToggle}>
                   <Edit className="h-4 w-4 mr-2" />
-                  Edit Profile
+                  Edit
                 </Button>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-700 mb-2">Name</h3>
-                  <p className="text-gray-900">
-                    {[initialProfile?.firstName, initialProfile?.lastName].filter(Boolean).join(' ') || 'Not provided'}
-                  </p>
-                </div>
-                
-                <div>
-                  <h3 className="text-sm font-medium text-gray-700 mb-2">Phone Number</h3>
-                  <p className="text-gray-900">{initialProfile?.phoneNumber || 'Not provided'}</p>
-                </div>
-                
-                <div>
-                  <h3 className="text-sm font-medium text-gray-700 mb-2">Occupation</h3>
-                  <p className="text-gray-900">{initialProfile?.occupation || 'Not provided'}</p>
-                </div>
-                
-                <div>
-                  <h3 className="text-sm font-medium text-gray-700 mb-2">Timezone</h3>
-                  <p className="text-gray-900">{initialProfile?.timezone || 'UTC'}</p>
-                </div>
-                
-                <div className="md:col-span-2">
-                  <h3 className="text-sm font-medium text-gray-700 mb-2">Communication Preferences</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {initialProfile?.communicationPreference.map((pref) => (
-                      <span
-                        key={pref}
-                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-                      >
-                        {pref}
-                      </span>
-                    )) || <span className="text-gray-500">Not provided</span>}
+              {profile && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 mb-1">Name</h3>
+                    <p className="text-gray-900">
+                      {profile.firstName || profile.lastName 
+                        ? `${profile.firstName || ''} ${profile.lastName || ''}`.trim()
+                        : 'Not provided'
+                      }
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 mb-1">Phone Number</h3>
+                    <p className="text-gray-900">{profile.phoneNumber || 'Not provided'}</p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 mb-1">Occupation</h3>
+                    <p className="text-gray-900">{profile.occupation || 'Not provided'}</p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 mb-1">Timezone</h3>
+                    <p className="text-gray-900">{profile.timezone}</p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 mb-1">Communication Preferences</h3>
+                    <p className="text-gray-900">
+                      {profile.communicationPreference.length > 0 
+                        ? profile.communicationPreference.join(', ')
+                        : 'Email'
+                      }
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 mb-1">Profile Completeness</h3>
+                    <p className="text-gray-900">{Math.round(profile.profileCompleteness)}%</p>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         )}
       </div>
+
+      {/* Toast notifications */}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 }; 

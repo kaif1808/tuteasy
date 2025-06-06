@@ -17,8 +17,8 @@ import {
   CommunicationPreference,
   COMMUNICATION_PREFERENCE_OPTIONS,
   TIMEZONE_OPTIONS,
-  type EmergencyContact,
 } from '../types';
+// import type { EmergencyContact } from '../types';
 
 interface ParentProfileFormProps {
   initialData?: Partial<ParentProfileFormData>;
@@ -43,7 +43,7 @@ export const ParentProfileForm: React.FC<ParentProfileFormProps> = ({
     watch,
     setValue,
     formState: { errors, isDirty },
-    trigger,
+    // trigger,
   } = useForm<ParentProfileFormData>({
     resolver: zodResolver(parentProfileSchema),
     defaultValues: {

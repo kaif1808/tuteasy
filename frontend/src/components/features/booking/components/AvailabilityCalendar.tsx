@@ -18,7 +18,7 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
   // Generate calendar days for the current month
   const calendarDays = useMemo(() => {
     const firstDay = new Date(currentYear, currentMonth, 1);
-    const lastDay = new Date(currentYear, currentMonth + 1, 0);
+    // const lastDay = new Date(currentYear, currentMonth + 1, 0);
     const startDate = new Date(firstDay);
     startDate.setDate(startDate.getDate() - firstDay.getDay()); // Start from Sunday
 

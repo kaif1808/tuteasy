@@ -28,6 +28,13 @@ applies_to: ["project_structure", "naming_conventions", "emergency_protocols", "
 ### General
 - Analyze user behavior for UX improvements.
 
+## 🤝 Development Workflow
+
+1. Create feature branch: `git checkout -b feature/feature-name`
+2. Make changes and test locally
+3. Run linting: `npm run lint`
+4. Commit changes: `git commit -m "feat: description"`
+5. Push and create PR: `git push origin feature/feature-name`
 ## Quick Reference Commands
 
 ### Development Setup
