@@ -1,40 +1,164 @@
 import { config } from '../config';
 import path from 'path';
-import fs from 'fs';
-import { DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { 
+  DeleteObjectCommand, 
+  PutObjectCommand, 
+  S3Client,
+  GetObjectCommand 
+} from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import sharp from 'sharp';
+import { v2 as cloudinary } from 'cloudinary';
+import { AppError } from '../utils/AppError';
 
 export interface StorageService {
-  uploadImage(buffer: Buffer, filename: string): Promise<{ url: string; key: string }>;
+  uploadImage(buffer: Buffer, filename: string, options?: ImageUploadOptions): Promise<{ url: string; key: string }>;
   uploadDocument(buffer: Buffer, filename: string): Promise<{ url: string; key: string }>;
   deleteFile(key: string): Promise<void>;
+  getSignedUrl?(key: string, expiresIn?: number): Promise<string>;
+}
+
+export interface ImageUploadOptions {
+  width?: number;
+  height?: number;
+  quality?: number;
+  format?: 'jpeg' | 'png' | 'webp';
+  folder?: string;
+}
+
+export interface UploadResult {
+  url: string;
+  key: string;
+  size?: number;
+  format?: string;
 }
 
 // Cloudinary implementation
 class CloudinaryStorage implements StorageService {
   constructor() {
-    // We'll implement Cloudinary setup when needed
-    // For now, this is a placeholder
+    const { cloudName, apiKey, apiSecret } = config.storage.cloudinary;
+    
+    if (!cloudName || !apiKey || !apiSecret) {
+      if (config.isProduction) {
+        throw new AppError('Cloudinary credentials are not configured for production environment', 500);
+      }
+      console.warn('Cloudinary credentials not found. Cloudinary storage service is disabled.');
+      return;
+    }
+
+    cloudinary.config({
+      cloud_name: cloudName,
+      api_key: apiKey,
+      api_secret: apiSecret,
+      secure: true
+    });
   }
 
-  async uploadImage(_buffer: Buffer, filename: string): Promise<{ url: string; key: string }> {
-    // TODO: Implement Cloudinary image upload
-    // For MVP, we can use local storage or return mock data
-    const key = `images/${Date.now()}-${filename}`;
-    const url = `/uploads/${key}`;
-    return { url, key };
+  async uploadImage(buffer: Buffer, filename: string, options: ImageUploadOptions = {}): Promise<{ url: string; key: string }> {
+    try {
+      // Process image with sharp if options are provided
+      let processedBuffer = buffer;
+      if (options.width || options.height || options.quality || options.format) {
+        let sharpInstance = sharp(buffer);
+        
+        if (options.width || options.height) {
+          sharpInstance = sharpInstance.resize(options.width, options.height, {
+            fit: 'inside',
+            withoutEnlargement: true
+          });
+        }
+        
+        if (options.format) {
+          switch (options.format) {
+            case 'jpeg':
+              sharpInstance = sharpInstance.jpeg({ quality: options.quality || 85 });
+              break;
+            case 'png':
+              sharpInstance = sharpInstance.png({ quality: options.quality || 85 });
+              break;
+            case 'webp':
+              sharpInstance = sharpInstance.webp({ quality: options.quality || 85 });
+              break;
+          }
+        }
+        
+        processedBuffer = await sharpInstance.toBuffer();
+      }
+
+      const uploadOptions = {
+        folder: options.folder || 'tuteasy/images',
+        public_id: `${Date.now()}-${path.parse(filename).name}`,
+        resource_type: 'image' as const,
+        transformation: [
+          { quality: 'auto:good' },
+          { fetch_format: 'auto' }
+        ]
+      };
+
+      const result = await new Promise<any>((resolve, reject) => {
+        cloudinary.uploader.upload_stream(
+          uploadOptions,
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        ).end(processedBuffer);
+      });
+
+      return {
+        url: result.secure_url,
+        key: result.public_id
+      };
+    } catch (error) {
+      console.error('Cloudinary image upload error:', error);
+      throw new AppError('Failed to upload image to Cloudinary', 500);
+    }
   }
 
-  async uploadDocument(_buffer: Buffer, filename: string): Promise<{ url: string; key: string }> {
-    // TODO: Implement Cloudinary document upload
-    const key = `documents/${Date.now()}-${filename}`;
-    const url = `/uploads/${key}`;
-    return { url, key };
+  async uploadDocument(buffer: Buffer, filename: string): Promise<{ url: string; key: string }> {
+    try {
+      const uploadOptions = {
+        folder: 'tuteasy/documents',
+        public_id: `${Date.now()}-${path.parse(filename).name}`,
+        resource_type: 'raw' as const
+      };
+
+      const result = await new Promise<any>((resolve, reject) => {
+        cloudinary.uploader.upload_stream(
+          uploadOptions,
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        ).end(buffer);
+      });
+
+      return {
+        url: result.secure_url,
+        key: result.public_id
+      };
+    } catch (error) {
+      console.error('Cloudinary document upload error:', error);
+      throw new AppError('Failed to upload document to Cloudinary', 500);
+    }
   }
 
   async deleteFile(key: string): Promise<void> {
-    // TODO: Implement Cloudinary file deletion
-    console.log(`Cloudinary file deletion placeholder for key: ${key}`);
-    return Promise.resolve();
+    try {
+      // Determine resource type based on folder structure
+      const resourceType = key.includes('/images/') ? 'image' : 'raw';
+      
+      const result = await cloudinary.uploader.destroy(key, {
+        resource_type: resourceType
+      });
+
+      if (result.result !== 'ok' && result.result !== 'not found') {
+        throw new AppError(`Failed to delete file from Cloudinary: ${result.result}`, 500);
+      }
+    } catch (error) {
+      console.error('Cloudinary file deletion error:', error);
+      throw new AppError('Failed to delete file from Cloudinary', 500);
+    }
   }
 }
 
@@ -61,61 +185,151 @@ class S3Storage implements StorageService {
     }
   }
 
-  async uploadImage(_buffer: Buffer, filename: string): Promise<{ url: string; key: string }> {
-    // TODO: Implement S3 image upload
-    const key = `images/${Date.now()}-${filename}`;
-    const url = `https://${config.storage.aws.bucket}.s3.amazonaws.com/${key}`;
-    return { url, key };
+  async uploadImage(buffer: Buffer, filename: string, options: ImageUploadOptions = {}): Promise<{ url: string; key: string }> {
+    if (!this.s3) {
+      throw new AppError('S3 client not initialized', 500);
+    }
+
+    try {
+      // Process image with sharp if options are provided
+      let processedBuffer = buffer;
+      let contentType = 'image/jpeg';
+      
+      if (options.width || options.height || options.quality || options.format) {
+        let sharpInstance = sharp(buffer);
+        
+        if (options.width || options.height) {
+          sharpInstance = sharpInstance.resize(options.width, options.height, {
+            fit: 'inside',
+            withoutEnlargement: true
+          });
+        }
+        
+        if (options.format) {
+          switch (options.format) {
+            case 'jpeg':
+              sharpInstance = sharpInstance.jpeg({ quality: options.quality || 85 });
+              contentType = 'image/jpeg';
+              break;
+            case 'png':
+              sharpInstance = sharpInstance.png({ quality: options.quality || 85 });
+              contentType = 'image/png';
+              break;
+            case 'webp':
+              sharpInstance = sharpInstance.webp({ quality: options.quality || 85 });
+              contentType = 'image/webp';
+              break;
+          }
+        }
+        
+        processedBuffer = await sharpInstance.toBuffer();
+      }
+
+      const folder = options.folder || 'images';
+      const key = `${folder}/${Date.now()}-${path.parse(filename).name}`;
+      const bucketName = this.getBucketName();
+      
+      if (!bucketName) {
+        throw new AppError('S3 bucket name is not configured', 500);
+      }
+
+      const uploadParams = {
+        Bucket: bucketName,
+        Key: key,
+        Body: processedBuffer,
+        ContentType: contentType,
+        ACL: 'public-read' as const
+      };
+
+      await this.s3.send(new PutObjectCommand(uploadParams));
+      
+      const url = `https://${bucketName}.s3.${config.storage.aws.region}.amazonaws.com/${key}`;
+      return { url, key };
+    } catch (error) {
+      console.error('S3 image upload error:', error);
+      throw new AppError('Failed to upload image to S3', 500);
+    }
   }
 
-  async uploadDocument(_buffer: Buffer, filename: string): Promise<{ url: string; key: string }> {
-    // TODO: Implement S3 document upload
-    const key = `documents/${Date.now()}-${filename}`;
-    const url = `https://${config.storage.aws.bucket}.s3.amazonaws.com/${key}`;
-    return { url, key };
+  async uploadDocument(buffer: Buffer, filename: string): Promise<{ url: string; key: string }> {
+    if (!this.s3) {
+      throw new AppError('S3 client not initialized', 500);
+    }
+
+    try {
+      const key = `documents/${Date.now()}-${filename}`;
+      const bucketName = this.getBucketName();
+      
+      if (!bucketName) {
+        throw new AppError('S3 bucket name is not configured', 500);
+      }
+
+      const uploadParams = {
+        Bucket: bucketName,
+        Key: key,
+        Body: buffer,
+        ContentType: 'application/pdf', // Assuming PDF for now
+        ACL: 'private' as const // Documents should be private
+      };
+
+      await this.s3.send(new PutObjectCommand(uploadParams));
+      
+      // For private documents, return a placeholder URL that will be replaced with signed URLs
+      const url = `s3://${bucketName}/${key}`;
+      return { url, key };
+    } catch (error) {
+      console.error('S3 document upload error:', error);
+      throw new AppError('Failed to upload document to S3', 500);
+    }
   }
 
   async deleteFile(key: string): Promise<void> {
     if (!this.s3) {
-      // Fallback to local deletion if S3 is not configured
-      console.warn('S3 not configured, attempting local file deletion as fallback.');
-      const filePath = path.join(__dirname, '../../uploads', key); // Adjust path as needed
-      try {
-        if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath);
-          console.log(`Successfully deleted local file: ${filePath}`);
-        } else {
-          console.warn(`Local file not found for deletion: ${filePath}`);
-        }
-      } catch (error) {
-        console.error('Error deleting local file:', error);
-        throw new Error('Failed to delete local file');
-      }
-      return;
+      throw new AppError('S3 client not initialized', 500);
     }
 
-    await this.deleteFromS3(key);
+    try {
+      const bucketName = this.getBucketName();
+      if (!bucketName) {
+        throw new AppError('S3 bucket name is not configured', 500);
+      }
+
+      await this.s3.send(new DeleteObjectCommand({ 
+        Bucket: bucketName, 
+        Key: key 
+      }));
+    } catch (error) {
+      console.error('S3 file deletion error:', error);
+      throw new AppError('Failed to delete file from S3', 500);
+    }
   }
 
-  private async deleteFromS3(key: string): Promise<void> {
+  async getSignedUrl(key: string, expiresIn: number = 3600): Promise<string> {
     if (!this.s3) {
-      console.warn('S3 client not initialized. Cannot delete from S3.');
-      return;
+      throw new AppError('S3 client not initialized', 500);
     }
-    const bucketName = this.getBucketName();
-    if (!bucketName) {
-      throw new Error('S3 bucket name is not configured.');
-    }
+
     try {
-      await this.s3.send(new DeleteObjectCommand({ Bucket: bucketName, Key: key }));
+      const bucketName = this.getBucketName();
+      if (!bucketName) {
+        throw new AppError('S3 bucket name is not configured', 500);
+      }
+
+      const command = new GetObjectCommand({
+        Bucket: bucketName,
+        Key: key
+      });
+
+      const signedUrl = await getSignedUrl(this.s3, command, { expiresIn });
+      return signedUrl;
     } catch (error) {
-      // ... existing code ...
+      console.error('S3 signed URL generation error:', error);
+      throw new AppError('Failed to generate signed URL', 500);
     }
   }
 
   private getBucketName(): string | undefined {
-    // Implement the logic to get the S3 bucket name
-    return undefined; // Placeholder return, actual implementation needed
+    return config.storage.aws.bucket;
   }
 }
 

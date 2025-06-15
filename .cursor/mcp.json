@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "tuteasy-rovo-mcp": {
+      "command": "node",
+      "args": ["./dist/mcp-server.js"],
+      "env": {
+        "WORKSPACE_ROOT": ".",
+        "PROJECT_TYPE": "tuteasy-tutoring-platform",
+        "MCP_DEBUG": "false"
+      }
+    }
+  }
+}

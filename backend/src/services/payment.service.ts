@@ -3,7 +3,7 @@ import { prisma } from '../utils/prisma';
 import { AppError } from '../utils/AppError';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2023-10-16',
+  apiVersion: '2025-05-28.basil',
 });
 
 export class PaymentService {
