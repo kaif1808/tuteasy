@@ -135,6 +135,13 @@
   - Improved tutor name extraction with multiple fallback strategies
   - Enhanced error handling and type safety across all payment components
 
+- [x] **Fixed PaymentService API Response Handling Inconsistency** ⚠️ CRITICAL
+  - Fixed all static method calls from 'this.handleApiError' to 'PaymentService.handleApiError'
+  - Updated backend payment controller to include currency in response
+  - Modified payment service to return currency along with clientSecret and amount
+  - Ensured consistent API response structure across all payment endpoints
+  - Fixed 15+ instances of incorrect static method calls
+
 ## ✅ Completed - Backend Build Error Resolution
 
 ### Dependency & Build Fixes
