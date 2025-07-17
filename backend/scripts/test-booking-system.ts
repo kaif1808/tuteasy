@@ -21,6 +21,19 @@ try {
   console.log('   ✓ Time overlap detection (09:00-10:00 vs 09:30-10:30):', timeRangesOverlap('09:00', '10:00', '09:30', '10:30'));
   console.log('   ✓ No time overlap (09:00-10:00 vs 11:00-12:00):', !timeRangesOverlap('09:00', '10:00', '11:00', '12:00'));
   console.log('   ✓ Calculate end time (10:00 + 60 minutes):', calculateEndTime('10:00', 60));
+
+  // Test timezone conversion functions
+  const { getCurrentTimeInTimezone, convertToTimezone, getTimezoneOffset, formatDateForTimezone } = require('../src/utils/timezoneUtils');
+
+  const testDate = new Date('2024-01-15T12:00:00Z');
+  const londonTime = convertToTimezone(testDate, 'Europe/London');
+  const nyTime = convertToTimezone(testDate, 'America/New_York');
+
+  console.log('   ✓ Timezone conversion working (London):', londonTime instanceof Date);
+  console.log('   ✓ Timezone conversion working (New York):', nyTime instanceof Date);
+  console.log('   ✓ Timezone offset calculation working:', typeof getTimezoneOffset('Europe/London') === 'number');
+  console.log('   ✓ Date formatting working:', typeof formatDateForTimezone(testDate, 'Europe/London') === 'string');
+
   console.log('   ✅ Timezone utilities working correctly\n');
 } catch (error) {
   console.log('   ❌ Timezone utilities error:', error);

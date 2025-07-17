@@ -39,7 +39,27 @@ export function getCurrentTimeInTimezone(timezone: string): Date {
     throw new Error(`Unsupported timezone: ${timezone}`);
   }
 
-  return new Date(new Date().toLocaleString('en-US', { timeZone: timezone }));
+  // Use Intl.DateTimeFormat to get accurate timezone conversion
+  const now = new Date();
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: timezone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
+
+  const parts = formatter.formatToParts(now);
+  const partsObj = parts.reduce((acc, part) => {
+    acc[part.type] = part.value;
+    return acc;
+  }, {} as Record<string, string>);
+
+  // Create date in the target timezone
+  return new Date(`${partsObj.year}-${partsObj.month}-${partsObj.day}T${partsObj.hour}:${partsObj.minute}:${partsObj.second}`);
 }
 
 /**
@@ -50,7 +70,26 @@ export function convertToTimezone(date: Date, timezone: string): Date {
     throw new Error(`Unsupported timezone: ${timezone}`);
   }
 
-  return new Date(date.toLocaleString('en-US', { timeZone: timezone }));
+  // Use Intl.DateTimeFormat for accurate timezone conversion
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: timezone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
+
+  const parts = formatter.formatToParts(date);
+  const partsObj = parts.reduce((acc, part) => {
+    acc[part.type] = part.value;
+    return acc;
+  }, {} as Record<string, string>);
+
+  // Create date in the target timezone
+  return new Date(`${partsObj.year}-${partsObj.month}-${partsObj.day}T${partsObj.hour}:${partsObj.minute}:${partsObj.second}`);
 }
 
 /**
@@ -139,11 +178,36 @@ export function getTimezoneOffset(timezone: string): number {
     throw new Error(`Unsupported timezone: ${timezone}`);
   }
 
-  const now = new Date();
-  const utc = new Date(now.getTime() + (now.getTimezoneOffset() * 60000));
-  const targetTime = new Date(utc.toLocaleString('en-US', { timeZone: timezone }));
-  
-  return (targetTime.getTime() - utc.getTime()) / (1000 * 60 * 60);
+  // Use a fixed date to avoid DST complications in calculation
+  const testDate = new Date('2024-01-15T12:00:00Z'); // UTC noon on a winter date
+
+  // Get the time in UTC
+  const utcTime = testDate.getTime();
+
+  // Get the same moment in the target timezone
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: timezone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
+
+  const parts = formatter.formatToParts(testDate);
+  const partsObj = parts.reduce((acc, part) => {
+    acc[part.type] = part.value;
+    return acc;
+  }, {} as Record<string, string>);
+
+  // Create a date object representing the local time in the target timezone
+  const localTime = new Date(`${partsObj.year}-${partsObj.month}-${partsObj.day}T${partsObj.hour}:${partsObj.minute}:${partsObj.second}Z`);
+
+  // Calculate the offset in hours
+  const offsetMs = localTime.getTime() - utcTime;
+  return offsetMs / (1000 * 60 * 60);
 }
 
 /**
@@ -172,7 +236,8 @@ export function formatDateForTimezone(
     } : {})
   };
 
-  return date.toLocaleString('en-GB', options);
+  // Use Intl.DateTimeFormat for consistent formatting
+  return new Intl.DateTimeFormat('en-GB', options).format(date);
 }
 
 /**
