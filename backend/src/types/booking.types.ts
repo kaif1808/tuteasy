@@ -183,6 +183,7 @@ export interface CreateAvailabilityRequest {
   slotDuration?: number;
   bufferTime?: number;
   maxBookings?: number;
+  timezone?: string;
   notes?: string;
 }
 
@@ -198,6 +199,7 @@ export interface UpdateAvailabilityRequest {
   slotDuration?: number;
   bufferTime?: number;
   maxBookings?: number;
+  timezone?: string;
   notes?: string;
 }
 
