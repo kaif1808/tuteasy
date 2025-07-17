@@ -10,6 +10,25 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     css: true,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html', 'lcov'],
+      exclude: [
+        'node_modules/',
+        'src/test/',
+        '**/*.d.ts',
+        '**/*.config.*',
+        '**/vite-env.d.ts'
+      ],
+      thresholds: {
+        global: {
+          branches: 75,
+          functions: 80,
+          lines: 80,
+          statements: 80
+        }
+      }
+    }
   },
   resolve: {
     alias: {
