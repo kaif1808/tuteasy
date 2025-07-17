@@ -50,6 +50,9 @@ model User {
   payerTransactions  Transaction[]   @relation("PayerTransactions")
   payeeTransactions  Transaction[]   @relation("PayeeTransactions")
 
+  // Booking relations
+  studentBookings    Booking[]       @relation("StudentBookings")
+
   @@index([email])
 }
 
@@ -104,6 +107,8 @@ model Tutor {
   // Relations
   subjects            TutorSubject[]
   qualifications      TutorQualification[]
+  availabilitySlots   TutorAvailability[]
+  tutorBookings       Booking[]           @relation("TutorBookings")
 
   @@index([userId])
   @@index([verificationStatus])
@@ -286,6 +291,141 @@ enum LearningStyle {
   KINESTHETIC
   READING_WRITING
   MULTIMODAL
+}
+
+// Booking System Models
+// Tutor availability management
+model TutorAvailability {
+  id          String              @id @default(uuid())
+  tutorId     String
+  tutor       Tutor               @relation(fields: [tutorId], references: [id], onDelete: Cascade)
+
+  // Time slot definition
+  dayOfWeek   Int                 // 0 = Sunday, 1 = Monday, etc.
+  startTime   String              // HH:MM format (e.g., "09:00")
+  endTime     String              // HH:MM format (e.g., "17:00")
+
+  // Availability settings
+  isRecurring Boolean             @default(true)  // Weekly recurring slot
+  isActive    Boolean             @default(true)  // Can be temporarily disabled
+
+  // Date range for non-recurring slots
+  specificDate DateTime?          // For one-time availability
+  validFrom    DateTime?          // Start date for recurring slots
+  validUntil   DateTime?          // End date for recurring slots
+
+  // Booking constraints
+  slotDuration Int                @default(60)    // Duration in minutes
+  bufferTime   Int                @default(15)    // Buffer between bookings in minutes
+  maxBookings  Int                @default(1)     // Max concurrent bookings in this slot
+
+  // Metadata
+  timezone     String             @default("Europe/London")
+  notes        String?            @db.Text
+
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  // Relations
+  bookings     Booking[]
+
+  @@unique([tutorId, dayOfWeek, startTime, endTime, specificDate])
+  @@index([tutorId])
+  @@index([dayOfWeek])
+  @@index([isActive])
+  @@index([specificDate])
+  @@map("tutor_availability")
+}
+
+// Lesson booking management
+model Booking {
+  id                String            @id @default(uuid())
+  bookingNumber     String            @unique @default(cuid())
+
+  // Participants
+  studentId         String
+  student           User              @relation("StudentBookings", fields: [studentId], references: [id])
+  tutorId           String
+  tutor             Tutor             @relation("TutorBookings", fields: [tutorId], references: [id])
+
+  // Availability slot reference
+  availabilityId    String?
+  availability      TutorAvailability? @relation(fields: [availabilityId], references: [id])
+
+  // Booking details
+  scheduledDate     DateTime          // The actual lesson date
+  startTime         String            // HH:MM format
+  endTime           String            // HH:MM format
+  duration          Int               // Duration in minutes
+
+  // Lesson information
+  subject           String?
+  qualificationLevel String?          // GCSE, A_LEVEL, etc.
+  lessonType        LessonType        @default(REGULAR)
+  teachingMode      TeachingMode      @default(ONLINE)
+
+  // Status and workflow
+  status            BookingStatus     @default(PENDING)
+  confirmationCode  String?           @unique
+
+  // Pricing
+  hourlyRate        Decimal           @db.Decimal(8, 2)
+  totalPrice        Decimal           @db.Decimal(10, 2)
+  currency          String            @default("GBP")
+
+  // Additional information
+  studentNotes      String?           @db.Text
+  tutorNotes        String?           @db.Text
+  internalNotes     String?           @db.Text  // Admin notes
+
+  // Cancellation and rescheduling
+  cancelledAt       DateTime?
+  cancelledBy       String?           // User ID who cancelled
+  cancellationReason String?          @db.Text
+  rescheduledFrom   String?           // Original booking ID if rescheduled
+
+  // Meeting details (for online lessons)
+  meetingUrl        String?
+  meetingId         String?
+  meetingPassword   String?
+
+  // Timestamps
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  confirmedAt       DateTime?
+  completedAt       DateTime?
+
+  @@index([studentId])
+  @@index([tutorId])
+  @@index([status])
+  @@index([scheduledDate])
+  @@index([availabilityId])
+  @@index([bookingNumber])
+  @@map("bookings")
+}
+
+enum LessonType {
+  REGULAR
+  TRIAL
+  ASSESSMENT
+  EXAM_PREP
+  HOMEWORK_HELP
+}
+
+enum TeachingMode {
+  ONLINE
+  IN_PERSON
+  HYBRID
+}
+
+enum BookingStatus {
+  PENDING           // Awaiting tutor confirmation
+  CONFIRMED         // Confirmed by tutor
+  CANCELLED         // Cancelled by student or tutor
+  COMPLETED         // Lesson completed
+  NO_SHOW_STUDENT   // Student didn't attend
+  NO_SHOW_TUTOR     // Tutor didn't attend
+  RESCHEDULED       // Moved to different time
 }
 
 // Prisma Schema for TutEasy Platform
