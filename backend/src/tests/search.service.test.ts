@@ -1,6 +1,21 @@
 import { SearchService } from '../services/search.service';
 import { TutorSearchParams } from '../types/search.types';
 
+// Mock the Prisma module first
+jest.mock('@prisma/client', () => ({
+  PrismaClient: jest.fn().mockImplementation(() => ({
+    tutor: {
+      count: jest.fn(),
+      findMany: jest.fn(),
+      aggregate: jest.fn(),
+    },
+    tutorSubject: {
+      findMany: jest.fn(),
+      groupBy: jest.fn(),
+    },
+  })),
+}));
+
 // Mock Prisma Client
 const mockPrisma = {
   tutor: {
@@ -13,11 +28,6 @@ const mockPrisma = {
     groupBy: jest.fn(),
   },
 };
-
-// Mock the Prisma module
-jest.mock('@prisma/client', () => ({
-  PrismaClient: jest.fn().mockImplementation(() => mockPrisma),
-}));
 
 describe('SearchService', () => {
   let searchService: SearchService;

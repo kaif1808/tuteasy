@@ -55,18 +55,21 @@ describe('StudentProfileService', () => {
 
       const result = await studentProfileService.createEnhancedStudentProfile('user-1', profileData);
 
-      expect((mockPrisma.studentProfile.create as jest.Mock).mock.calls[0][0]).toEqual(expect.objectContaining({
-        userId: 'user-1',
-        ukYearGroup: 'YEAR_10',
-        ukKeyStage: 'KS4',
-        schoolName: 'Test Grammar School',
-        schoolType: 'STATE_GRAMMAR',
-        academicLevelDisplay: 'Year 10',
-        subjectsOfInterest: expect.arrayContaining([expect.any(String)]),
-        learningGoals: 'Achieve A* in GCSE Mathematics',
-        timezone: 'Europe/London',
-        profileCompleteness: expect.any(Number)
-      }));
+      expect((mockPrisma.studentProfile.create as jest.Mock).mock.calls[0][0]).toEqual({
+        data: expect.objectContaining({
+          userId: 'user-1',
+          ukYearGroup: 'YEAR_10',
+          ukKeyStage: 'KS4',
+          schoolName: 'Test Grammar School',
+          schoolType: 'STATE_GRAMMAR',
+          academicLevelDisplay: 'Year 10',
+          subjectsOfInterest: expect.arrayContaining([expect.any(String)]),
+          learningGoals: 'Achieve A* in GCSE Mathematics',
+          timezone: 'Europe/London',
+          profileCompleteness: expect.any(Number)
+        }),
+        include: expect.any(Object)
+      });
 
       expect(result).toEqual(mockProfile);
     });
@@ -104,15 +107,18 @@ describe('StudentProfileService', () => {
 
       const result = await studentProfileService.createEnhancedStudentProfile('user-2', profileData);
 
-      expect((mockPrisma.studentProfile.create as jest.Mock).mock.calls[0][0]).toEqual(expect.objectContaining({
-        userId: 'user-2',
-        ibProgramme: 'DP',
-        ibYear: 1,
-        schoolName: 'International School London',
-        schoolType: 'INTERNATIONAL_SCHOOL',
-        academicLevelDisplay: 'IB Diploma Programme Year 1',
-        profileCompleteness: expect.any(Number)
-      }));
+      expect((mockPrisma.studentProfile.create as jest.Mock).mock.calls[0][0]).toEqual({
+        data: expect.objectContaining({
+          userId: 'user-2',
+          ibProgramme: 'DP',
+          ibYear: 1,
+          schoolName: 'International School London',
+          schoolType: 'INTERNATIONAL_SCHOOL',
+          academicLevelDisplay: 'IB Diploma Programme Year 1',
+          profileCompleteness: expect.any(Number)
+        }),
+        include: expect.any(Object)
+      });
 
       expect(result).toEqual(mockProfile);
     });
@@ -140,11 +146,14 @@ describe('StudentProfileService', () => {
 
       await studentProfileService.createEnhancedStudentProfile('user-3', profileData);
 
-      expect((mockPrisma.studentProfile.create as jest.Mock).mock.calls[0][0]).toEqual(expect.objectContaining({
-        ukYearGroup: 'YEAR_7',
-        ukKeyStage: 'KS3',
-        academicLevelDisplay: 'Year 7'
-      }));
+      expect((mockPrisma.studentProfile.create as jest.Mock).mock.calls[0][0]).toEqual({
+        data: expect.objectContaining({
+          ukYearGroup: 'YEAR_7',
+          ukKeyStage: 'KS3',
+          academicLevelDisplay: 'Year 7'
+        }),
+        include: expect.any(Object)
+      });
     });
   });
 
@@ -502,9 +511,13 @@ describe('StudentProfileService', () => {
       await studentProfileService.updateEnhancedStudentProfile('user-1', updateData);
 
       // Should handle legacy format without errors
-      expect((mockPrisma.studentProfile.update as jest.Mock).mock.calls[0][0]).toEqual(expect.objectContaining({
-        learningGoals: 'New learning goals'
-      }));
+      expect((mockPrisma.studentProfile.update as jest.Mock).mock.calls[0][0]).toEqual({
+        where: { userId: 'user-1' },
+        data: expect.objectContaining({
+          learningGoals: 'New learning goals'
+        }),
+        include: expect.any(Object)
+      });
     });
 
     it('should parse JSON subject format correctly', async () => {
@@ -540,9 +553,13 @@ describe('StudentProfileService', () => {
       await studentProfileService.updateEnhancedStudentProfile('user-1', updateData);
 
       // Should handle JSON format without errors
-      expect((mockPrisma.studentProfile.update as jest.Mock).mock.calls[0][0]).toEqual(expect.objectContaining({
-        learningGoals: 'New learning goals'
-      }));
+      expect((mockPrisma.studentProfile.update as jest.Mock).mock.calls[0][0]).toEqual({
+        where: { userId: 'user-1' },
+        data: expect.objectContaining({
+          learningGoals: 'New learning goals'
+        }),
+        include: expect.any(Object)
+      });
     });
   });
 }); 
