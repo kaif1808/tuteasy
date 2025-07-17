@@ -114,13 +114,26 @@
 - [x] **Fixed Incorrect Tutor Name Display**
   - Updated BookingPage to extract display name from email instead of showing raw email
   - Converts email prefix to proper case (e.g., 'john.doe' → 'John Doe')
+  - Enhanced with robust fallback handling for multiple data structure formats
   - Provides better user experience in payment flow
 
-- [x] **Fixed Hardcoded Currency Display**
-  - Added currency field to RefundRequest interface
-  - Updated RefundRequest component to use dynamic currency from refund data
-  - Fixed PaymentPage to use formatCurrency function instead of hardcoded £ symbol
+- [x] **Fixed Type Safety Violation in Currency Handling**
+  - Updated formatCurrency function to accept any string currency with validation
+  - Removed all unsafe 'as any' type assertions from payment components
+  - Added proper error handling for unsupported currencies with GBP fallback
+  - Enhanced type safety throughout the payment system
+
+- [x] **Fixed Currency Formatting Mismatch**
+  - Added currency field to CreatePaymentIntentResponse interface
+  - Added dynamic currency state to PaymentPage
+  - Updated PaymentForm to use currency from payment intent response
+  - Fixed hardcoded 'GBP' currency display in payment summary
   - Ensures correct currency formatting for international transactions
+
+- [x] **Enhanced Payment Flow Robustness**
+  - Added currency field to RefundRequest interface for proper currency display
+  - Improved tutor name extraction with multiple fallback strategies
+  - Enhanced error handling and type safety across all payment components
 
 ## ✅ Completed - Backend Build Error Resolution
 
