@@ -110,6 +110,18 @@
 - **User Profiles**: Billing details linked to user accounts
 - **Role Support**: Parent paying for student lessons
 
+### Bug Fixes Applied ✅ COMPLETE (NEW)
+- [x] **Fixed Incorrect Tutor Name Display**
+  - Updated BookingPage to extract display name from email instead of showing raw email
+  - Converts email prefix to proper case (e.g., 'john.doe' → 'John Doe')
+  - Provides better user experience in payment flow
+
+- [x] **Fixed Hardcoded Currency Display**
+  - Added currency field to RefundRequest interface
+  - Updated RefundRequest component to use dynamic currency from refund data
+  - Fixed PaymentPage to use formatCurrency function instead of hardcoded £ symbol
+  - Ensures correct currency formatting for international transactions
+
 ## ✅ Completed - Backend Build Error Resolution
 
 ### Dependency & Build Fixes
