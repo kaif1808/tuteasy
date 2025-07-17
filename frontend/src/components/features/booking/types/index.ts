@@ -1,14 +1,21 @@
-// Booking system types for TutEasy lesson booking
+// Re-export types from the booking service for consistency
+export type {
+  TimeSlot,
+  BookingRequest,
+  BookingResponse,
+  TutorDetails,
+  UpdateBookingRequest,
+  CancelBookingRequest,
+  ConfirmBookingRequest,
+  BookingListResponse,
+  BookingQueryParams
+} from '../../../services/bookingService';
+
+// Component-specific types
 export interface BookingDate {
   date: Date;
   available: boolean;
   timeSlots?: string[];
-}
-
-export interface TimeSlot {
-  time: string;
-  available: boolean;
-  price?: number;
 }
 
 export interface BookingDetails {
@@ -19,6 +26,9 @@ export interface BookingDetails {
   duration: number; // in minutes
   price: number;
   subject?: string;
+  qualificationLevel?: string;
+  lessonType?: 'REGULAR' | 'TRIAL' | 'ASSESSMENT' | 'EXAM_PREP' | 'HOMEWORK_HELP';
+  teachingMode?: 'ONLINE' | 'IN_PERSON' | 'HYBRID';
 }
 
 export interface AvailabilityCalendarProps {
@@ -30,7 +40,7 @@ export interface AvailabilityCalendarProps {
 }
 
 export interface TimeSlotSelectorProps {
-  timeSlots: string[];
+  timeSlots: TimeSlot[]; // Updated to use TimeSlot interface
   selectedTime?: string;
   onTimeSelect: (time: string) => void;
   date: Date;
@@ -43,4 +53,4 @@ export interface BookingConfirmationModalProps {
   onConfirm: () => void;
   bookingDetails: BookingDetails;
   loading?: boolean;
-} 
+}

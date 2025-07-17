@@ -46,6 +46,12 @@
         "@modelcontextprotocol/server-postgres",
         "postgresql://tuteasy_user:tuteasy_password@localhost:5433/tuteasy_db"
       ]
+    },
+    "gemini-collaboration-guide": {
+      "command": "node",
+      "args": [
+        "/Users/kaifaulkner/Desktop/tuteasy/tuteasy/gemini-cli-orchestrator/gemini-collaboration-guide.mjs"
+      ]
     }
   }
 }

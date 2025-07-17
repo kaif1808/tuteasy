@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import cookieParser from 'cookie-parser';
 import { config } from './config';
 import tutorProfileRoutes from './routes/tutorProfile.routes';
 import studentProfileRoutes from './routes/studentProfile.routes';
@@ -9,6 +10,8 @@ import parentProfileRoutes from './routes/parentProfile.routes';
 import authRoutes from './routes/authRoutes';
 import searchRoutes from './routes/search.routes';
 import paymentRoutes from './routes/payment.routes';
+import bookingRoutes from './routes/booking.routes';
+import availabilityRoutes from './routes/availability.routes';
 import { ZodError } from 'zod';
 
 const app = express();
@@ -40,6 +43,7 @@ app.use('/api/auth', authLimiter as any);
 // Body parsing middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // Health check endpoint
 app.get('/health', (_req, res) => {
@@ -53,6 +57,8 @@ app.use('/api/profiles/student', studentProfileRoutes);
 app.use('/api/profiles/parent', parentProfileRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/bookings', bookingRoutes);
+app.use('/api/availability', availabilityRoutes);
 
 // Error handling middleware
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

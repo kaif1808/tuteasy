@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { AuthService } from '../services/authService';
 import { EmailService } from '../services/emailService';
+import { setRefreshTokenCookie, clearRefreshTokenCookie, getRefreshTokenFromCookie } from '../utils/cookieUtils';
+import { logRegistrationAttempt, logLoginAttempt, logPasswordResetRequest, logTokenRefresh, logLogout } from '../utils/securityLogger';
 import {
   RegisterInput,
   LoginInput,
@@ -17,8 +19,16 @@ export class AuthController {
     req: Request<{}, {}, RegisterInput>,
     res: Response
   ): Promise<void> {
+    const { email } = req.body;
+
     try {
       const { user, accessToken, refreshToken } = await AuthService.register(req.body);
+
+      // Set refresh token as HttpOnly cookie
+      setRefreshTokenCookie(res, refreshToken);
+
+      // Log successful registration
+      logRegistrationAttempt(req, email, true, undefined, user.id);
 
       // Send verification email
       if ((user as any).emailVerificationToken) {
@@ -40,15 +50,21 @@ export class AuthController {
             isEmailVerified: user.isEmailVerified,
           },
           accessToken,
-          refreshToken,
+          // refreshToken removed from response body for security
         },
       });
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+      // Log failed registration
+      logRegistrationAttempt(req, email, false, errorMessage);
+
       if (error instanceof Error && error.message === 'User already exists') {
-        res.status(409).json({ error: error.message });
+        // Generic message to prevent email enumeration
+        res.status(400).json({ error: 'Registration failed. Please check your information and try again.' });
         return;
       }
-      res.status(500).json({ error: 'Registration failed' });
+      res.status(500).json({ error: 'Registration failed. Please try again later.' });
     }
   }
 
@@ -57,8 +73,16 @@ export class AuthController {
     req: Request<{}, {}, LoginInput>,
     res: Response
   ): Promise<void> {
+    const { email } = req.body;
+
     try {
       const { user, accessToken, refreshToken } = await AuthService.login(req.body);
+
+      // Set refresh token as HttpOnly cookie
+      setRefreshTokenCookie(res, refreshToken);
+
+      // Log successful login
+      logLoginAttempt(req, email, true, undefined, user.id);
 
       res.json({
         message: 'Login successful',
@@ -71,21 +95,27 @@ export class AuthController {
             lastLoginAt: user.lastLoginAt,
           },
           accessToken,
-          refreshToken,
+          // refreshToken removed from response body for security
         },
       });
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+      // Log failed login attempt
+      logLoginAttempt(req, email, false, errorMessage);
+
       if (error instanceof Error) {
         if (
           error.message === 'Invalid credentials' ||
           error.message === 'Account is locked. Please try again later.' ||
           error.message === 'Please verify your email before logging in'
         ) {
-          res.status(401).json({ error: error.message });
+          // Generic message to prevent user enumeration
+          res.status(401).json({ error: 'Invalid email or password. Please check your credentials and try again.' });
           return;
         }
       }
-      res.status(500).json({ error: 'Login failed' });
+      res.status(500).json({ error: 'Login failed. Please try again later.' });
     }
   }
 
@@ -178,16 +208,31 @@ export class AuthController {
 
   // Refresh access token
   static async refreshToken(
-    req: Request<{}, {}, RefreshTokenInput>,
+    req: Request,
     res: Response
   ): Promise<void> {
     try {
-      const { refreshToken } = req.body;
+      // Get refresh token from HttpOnly cookie instead of request body
+      const refreshToken = getRefreshTokenFromCookie(req);
+
+      if (!refreshToken) {
+        res.status(401).json({ error: 'Refresh token not found' });
+        return;
+      }
+
       const tokens = await AuthService.refreshAccessToken(refreshToken);
+
+      // Set new refresh token as HttpOnly cookie (token rotation)
+      if (tokens.newRefreshToken) {
+        setRefreshTokenCookie(res, tokens.newRefreshToken);
+      }
 
       res.json({
         message: 'Token refreshed successfully',
-        data: tokens,
+        data: {
+          accessToken: tokens.accessToken,
+          // refreshToken removed from response body for security
+        },
       });
     } catch (error) {
       if (
@@ -195,6 +240,8 @@ export class AuthController {
         (error.message === 'Invalid refresh token' ||
           error.message === 'Invalid or expired refresh token')
       ) {
+        // Clear invalid refresh token cookie
+        clearRefreshTokenCookie(res);
         res.status(401).json({ error: error.message });
         return;
       }
@@ -204,7 +251,7 @@ export class AuthController {
 
   // Logout
   static async logout(
-    req: Request<{}, {}, LogoutInput>,
+    req: Request,
     res: Response
   ): Promise<void> {
     try {
@@ -213,13 +260,22 @@ export class AuthController {
         return;
       }
 
-      const { refreshToken } = req.body;
-      await AuthService.logout(req.user.id, refreshToken);
+      // Get refresh token from HttpOnly cookie
+      const refreshToken = getRefreshTokenFromCookie(req);
+
+      if (refreshToken) {
+        await AuthService.logout(req.user.id, refreshToken);
+      }
+
+      // Clear refresh token cookie
+      clearRefreshTokenCookie(res);
 
       res.json({
         message: 'Logout successful',
       });
     } catch (error) {
+      // Always clear the cookie even if logout fails
+      clearRefreshTokenCookie(res);
       res.status(500).json({ error: 'Logout failed' });
     }
   }
