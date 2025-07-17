@@ -3,8 +3,6 @@ import { format } from 'date-fns';
 import {
   History,
   Filter,
-  Download,
-  Search,
   Calendar,
   CreditCard,
   RefreshCw,
@@ -340,6 +338,8 @@ export const PaymentHistory: React.FC<PaymentHistoryProps> = ({
                   currentPage={paymentHistory.pagination.page}
                   totalPages={paymentHistory.pagination.totalPages}
                   onPageChange={handlePageChange}
+                  hasNextPage={paymentHistory.pagination.page < paymentHistory.pagination.totalPages}
+                  hasPreviousPage={paymentHistory.pagination.page > 1}
                 />
               </div>
             )}

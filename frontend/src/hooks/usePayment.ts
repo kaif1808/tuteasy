@@ -9,8 +9,8 @@ import type {
   CreateRefundRequest,
   BillingDetails,
   PaymentError,
-  paymentKeys,
 } from '../types/payment.types';
+import { paymentKeys } from '../types/payment.types';
 
 // Payment processing hook
 export const usePaymentProcessing = () => {

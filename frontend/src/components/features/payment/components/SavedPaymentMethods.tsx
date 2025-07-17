@@ -6,7 +6,6 @@ import {
   Star,
   Trash2,
   Edit2,
-  Check,
   AlertCircle,
 } from 'lucide-react';
 import { Button } from '../../../ui/Button';

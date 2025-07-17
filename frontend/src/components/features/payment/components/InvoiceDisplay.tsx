@@ -3,11 +3,9 @@ import { format } from 'date-fns';
 import {
   FileText,
   Download,
-  Calendar,
   User,
   Mail,
   MapPin,
-  CreditCard,
   CheckCircle,
   Clock,
   AlertCircle,

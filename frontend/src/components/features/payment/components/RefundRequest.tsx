@@ -9,7 +9,6 @@ import {
   Clock,
   X,
   DollarSign,
-  FileText,
   Send,
 } from 'lucide-react';
 import { Button } from '../../../ui/Button';
@@ -415,7 +414,6 @@ export const RefundRequestComponent: React.FC<RefundRequestProps> = ({
             setSelectedTransactionId(undefined);
           }}
           title="Request Refund"
-          size="lg"
         >
           {selectedTransaction ? (
             <RefundRequestForm

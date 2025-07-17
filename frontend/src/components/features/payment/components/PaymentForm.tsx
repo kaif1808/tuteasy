@@ -51,7 +51,6 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
     register,
     handleSubmit,
     watch,
-    setValue,
     formState: { errors },
   } = useForm<PaymentFormData>({
     resolver: zodResolver(paymentFormSchema),
@@ -96,7 +95,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
     }
   }, [watch(), clearError]);
 
-  const onSubmit = async (data: PaymentFormData) => {
+  const onSubmit = async () => {
     if (!stripe || !elements) {
       onError?.(new Error('Stripe has not loaded yet'));
       return;
