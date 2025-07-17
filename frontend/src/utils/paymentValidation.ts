@@ -192,18 +192,31 @@ export const formatExpiry = (value: string): string => {
 
 export const formatCurrency = (
   amount: number,
-  currency: 'GBP' | 'USD' | 'EUR' = 'GBP',
+  currency: string = 'GBP',
   locale: string = 'en-GB'
 ): string => {
   // Convert from pence/cents to main currency unit
   const mainAmount = amount / 100;
-  
-  return new Intl.NumberFormat(locale, {
-    style: 'currency',
-    currency,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(mainAmount);
+
+  // Validate currency code - fallback to GBP if invalid
+  const validCurrency = /^[A-Z]{3}$/.test(currency) ? currency : 'GBP';
+
+  try {
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency: validCurrency,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(mainAmount);
+  } catch (error) {
+    // Fallback to GBP if currency is not supported
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency: 'GBP',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(mainAmount);
+  }
 };
 
 export const parseCurrencyInput = (value: string): number => {

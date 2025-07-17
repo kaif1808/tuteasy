@@ -29,6 +29,7 @@ export const PaymentPage: React.FC<PaymentPageProps> = () => {
   // Payment state
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [paymentAmount, setPaymentAmount] = useState<number>(0);
+  const [paymentCurrency, setPaymentCurrency] = useState<string>('GBP');
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null);
 
@@ -65,6 +66,7 @@ export const PaymentPage: React.FC<PaymentPageProps> = () => {
         const response = await createPaymentIntentMutation.mutateAsync(request);
         setClientSecret(response.clientSecret);
         setPaymentAmount(response.amount);
+        setPaymentCurrency(response.currency || 'GBP');
       } catch (error) {
         // Error is handled by the mutation hook
         navigate('/dashboard');
@@ -238,7 +240,7 @@ export const PaymentPage: React.FC<PaymentPageProps> = () => {
               <PaymentForm
                 clientSecret={clientSecret}
                 amount={paymentAmount}
-                currency="GBP"
+                currency={paymentCurrency}
                 tutorName={tutorName}
                 lessonDuration={duration}
                 onSuccess={handlePaymentSuccess}
@@ -278,7 +280,7 @@ export const PaymentPage: React.FC<PaymentPageProps> = () => {
                   <div className="flex justify-between items-center">
                     <span className="font-semibold">Total Amount:</span>
                     <span className="text-lg font-bold">
-                      {formatCurrency(paymentAmount, 'GBP')}
+                      {formatCurrency(paymentAmount, paymentCurrency)}
                     </span>
                   </div>
                 </div>

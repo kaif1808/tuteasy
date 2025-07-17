@@ -70,7 +70,7 @@ const RefundRequestForm: React.FC<RefundRequestFormProps> = ({
           <div>
             <span className="text-gray-600">Amount:</span>
             <span className="ml-2 font-medium">
-              {formatCurrency(transaction.amount, transaction.currency as any)}
+              {formatCurrency(transaction.amount, transaction.currency)}
             </span>
           </div>
           <div>
@@ -106,10 +106,10 @@ const RefundRequestForm: React.FC<RefundRequestFormProps> = ({
         )}
         <div className="flex justify-between text-sm text-gray-600 mt-1">
           <span>
-            Refund: {formatCurrency(watchAmount || 0, transaction.currency as any)}
+            Refund: {formatCurrency(watchAmount || 0, transaction.currency)}
           </span>
           <span>
-            Max: {formatCurrency(transaction.amount, transaction.currency as any)}
+            Max: {formatCurrency(transaction.amount, transaction.currency)}
           </span>
         </div>
         {isPartialRefund && (
@@ -263,7 +263,7 @@ const RefundRequestList: React.FC<RefundRequestListProps> = ({
                 {getStatusBadge(refund.status)}
               </div>
               <p className="text-sm text-gray-600">
-                Amount: {formatCurrency(refund.amount, refund.currency as any)}
+                Amount: {formatCurrency(refund.amount, refund.currency)}
               </p>
             </div>
             <Button

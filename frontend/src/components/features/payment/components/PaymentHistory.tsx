@@ -288,7 +288,7 @@ export const PaymentHistory: React.FC<PaymentHistoryProps> = ({
                   <div className="text-right">
                     <p className="font-semibold text-lg">
                       {transaction.type === 'refund' ? '-' : ''}
-                      {formatCurrency(transaction.amount, transaction.currency as any)}
+                      {formatCurrency(transaction.amount, transaction.currency)}
                     </p>
                     <Button
                       variant="ghost"

@@ -73,7 +73,7 @@ const InvoiceHeader: React.FC<InvoiceHeaderProps> = ({
           <div className="flex items-center gap-2 mt-1">
             {getStatusBadge(invoice.status)}
             <span className="text-sm text-gray-500">
-              {formatCurrency(invoice.amount, invoice.currency as any)}
+              {formatCurrency(invoice.amount, invoice.currency)}
             </span>
           </div>
         </div>
@@ -172,7 +172,7 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({ invoice }) => {
             <div className="flex justify-between">
               <span className="text-sm text-gray-600">Amount Paid:</span>
               <span className="text-sm font-medium">
-                {formatCurrency(invoice.paymentDetails.paidAmount, invoice.currency as any)}
+                {formatCurrency(invoice.paymentDetails.paidAmount, invoice.currency)}
               </span>
             </div>
           </CardContent>
@@ -297,10 +297,10 @@ const LineItems: React.FC<LineItemsProps> = ({ invoice }) => {
                   </td>
                   <td className="py-3 text-center text-sm">{item.quantity}</td>
                   <td className="py-3 text-right text-sm">
-                    {formatCurrency(item.unitPrice, invoice.currency as any)}
+                    {formatCurrency(item.unitPrice, invoice.currency)}
                   </td>
                   <td className="py-3 text-right text-sm font-medium">
-                    {formatCurrency(item.totalPrice, invoice.currency as any)}
+                    {formatCurrency(item.totalPrice, invoice.currency)}
                   </td>
                 </tr>
               ))}
@@ -311,7 +311,7 @@ const LineItems: React.FC<LineItemsProps> = ({ invoice }) => {
                   Total Amount:
                 </td>
                 <td className="py-3 text-right text-lg font-bold">
-                  {formatCurrency(invoice.amount, invoice.currency as any)}
+                  {formatCurrency(invoice.amount, invoice.currency)}
                 </td>
               </tr>
             </tfoot>

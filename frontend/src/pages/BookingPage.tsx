@@ -102,8 +102,10 @@ export const BookingPage: React.FC = () => {
 
     // Redirect to payment page with booking details
     // Extract a display name from email (before @ symbol) as a fallback
-    const tutorDisplayName = tutorData.user?.email
-      ? tutorData.user.email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+    // Handle both possible data structures for robustness
+    const tutorEmail = tutorData.user?.email || (tutorData as any).email;
+    const tutorDisplayName = tutorEmail
+      ? tutorEmail.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())
       : 'Unknown Tutor';
 
     const paymentParams = new URLSearchParams({
