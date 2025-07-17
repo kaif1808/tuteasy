@@ -24,7 +24,7 @@ export interface CreatePaymentIntentResponse {
   status: 'success';
   clientSecret: string;
   amount: number;
-  currency: string;
+  currency: string; // Currency returned from backend
 }
 
 export interface PaymentMethod {

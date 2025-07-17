@@ -66,7 +66,7 @@ export const PaymentPage: React.FC<PaymentPageProps> = () => {
         const response = await createPaymentIntentMutation.mutateAsync(request);
         setClientSecret(response.clientSecret);
         setPaymentAmount(response.amount);
-        setPaymentCurrency(response.currency || 'GBP');
+        setPaymentCurrency(response.currency);
       } catch (error) {
         // Error is handled by the mutation hook
         navigate('/dashboard');

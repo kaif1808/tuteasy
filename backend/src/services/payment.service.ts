@@ -11,7 +11,7 @@ export class PaymentService {
     tutorId: string,
     duration: number, // duration in minutes
     userId: string
-  ): Promise<{ clientSecret: string | null; amount: number }> {
+  ): Promise<{ clientSecret: string | null; amount: number; currency: string }> {
     const tutor = await prisma.tutor.findUnique({
       where: { id: tutorId },
     });
@@ -27,12 +27,13 @@ export class PaymentService {
 
     // Amount must be in the smallest currency unit (e.g., pence for GBP)
     const amountInPence = Math.round(amount * 100);
+    const currency = 'gbp'; // For now, hardcoded to GBP
 
     // In a real application, you would create or retrieve a Stripe Customer ID for the user
     // For this MVP, we will create a payment intent without a customer
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountInPence,
-      currency: 'gbp',
+      currency,
       automatic_payment_methods: {
         enabled: true,
       },
@@ -46,6 +47,7 @@ export class PaymentService {
     return {
       clientSecret: paymentIntent.client_secret,
       amount: amountInPence,
+      currency: currency.toUpperCase(), // Return uppercase currency code
     };
   }
 

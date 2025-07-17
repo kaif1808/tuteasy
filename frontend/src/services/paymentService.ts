@@ -32,7 +32,7 @@ export class PaymentService {
       );
       return response.data;
     } catch (error: any) {
-      throw this.handleApiError(error);
+      throw PaymentService.handleApiError(error);
     }
   }
 
@@ -44,7 +44,7 @@ export class PaymentService {
       );
       return response.data.data;
     } catch (error: any) {
-      throw this.handleApiError(error);
+      throw PaymentService.handleApiError(error);
     }
   }
 
@@ -54,7 +54,7 @@ export class PaymentService {
       const response = await api.get<ApiResponse<PaymentMethod[]>>('/payments/methods');
       return response.data.data;
     } catch (error: any) {
-      throw this.handleApiError(error);
+      throw PaymentService.handleApiError(error);
     }
   }
 
@@ -72,7 +72,7 @@ export class PaymentService {
       });
       return response.data.data;
     } catch (error: any) {
-      throw this.handleApiError(error);
+      throw PaymentService.handleApiError(error);
     }
   }
 
@@ -88,7 +88,7 @@ export class PaymentService {
       );
       return response.data.data;
     } catch (error: any) {
-      throw this.handleApiError(error);
+      throw PaymentService.handleApiError(error);
     }
   }
 
@@ -97,7 +97,7 @@ export class PaymentService {
     try {
       await api.delete(`/payments/methods/${paymentMethodId}`);
     } catch (error: any) {
-      throw this.handleApiError(error);
+      throw PaymentService.handleApiError(error);
     }
   }
 
@@ -109,7 +109,7 @@ export class PaymentService {
       );
       return response.data.data;
     } catch (error: any) {
-      throw this.handleApiError(error);
+      throw PaymentService.handleApiError(error);
     }
   }
 
@@ -117,7 +117,7 @@ export class PaymentService {
   static async getPaymentHistory(filters: PaymentHistoryFilters = {}): Promise<PaymentHistory> {
     try {
       const params = new URLSearchParams();
-      
+
       Object.entries(filters).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== '') {
           params.append(key, value.toString());
@@ -129,7 +129,7 @@ export class PaymentService {
       );
       return response.data.data;
     } catch (error: any) {
-      throw this.handleApiError(error);
+      throw PaymentService.handleApiError(error);
     }
   }
 
@@ -141,7 +141,7 @@ export class PaymentService {
       );
       return response.data.data;
     } catch (error: any) {
-      throw this.handleApiError(error);
+      throw PaymentService.handleApiError(error);
     }
   }
 
@@ -157,7 +157,7 @@ export class PaymentService {
       }>>(`/payments/invoices?page=${page}&limit=${limit}`);
       return response.data.data;
     } catch (error: any) {
-      throw this.handleApiError(error);
+      throw PaymentService.handleApiError(error);
     }
   }
 
@@ -167,7 +167,7 @@ export class PaymentService {
       const response = await api.get<ApiResponse<Invoice>>(`/payments/invoices/${invoiceId}`);
       return response.data.data;
     } catch (error: any) {
-      throw this.handleApiError(error);
+      throw PaymentService.handleApiError(error);
     }
   }
 
@@ -179,7 +179,7 @@ export class PaymentService {
       });
       return response.data;
     } catch (error: any) {
-      throw this.handleApiError(error);
+      throw PaymentService.handleApiError(error);
     }
   }
 
@@ -192,7 +192,7 @@ export class PaymentService {
       );
       return response.data.data;
     } catch (error: any) {
-      throw this.handleApiError(error);
+      throw PaymentService.handleApiError(error);
     }
   }
 
@@ -202,7 +202,7 @@ export class PaymentService {
       const response = await api.get<ApiResponse<RefundRequest[]>>('/payments/refunds');
       return response.data.data;
     } catch (error: any) {
-      throw this.handleApiError(error);
+      throw PaymentService.handleApiError(error);
     }
   }
 
@@ -212,7 +212,7 @@ export class PaymentService {
       const response = await api.get<ApiResponse<RefundRequest>>(`/payments/refunds/${refundId}`);
       return response.data.data;
     } catch (error: any) {
-      throw this.handleApiError(error);
+      throw PaymentService.handleApiError(error);
     }
   }
 
@@ -222,7 +222,7 @@ export class PaymentService {
       const response = await api.delete<ApiResponse<RefundRequest>>(`/payments/refunds/${refundId}`);
       return response.data.data;
     } catch (error: any) {
-      throw this.handleApiError(error);
+      throw PaymentService.handleApiError(error);
     }
   }
 
@@ -235,7 +235,7 @@ export class PaymentService {
       );
       return response.data.data;
     } catch (error: any) {
-      throw this.handleApiError(error);
+      throw PaymentService.handleApiError(error);
     }
   }
 
@@ -245,7 +245,7 @@ export class PaymentService {
       const response = await api.get<ApiResponse<BillingDetails>>('/payments/billing');
       return response.data.data;
     } catch (error: any) {
-      throw this.handleApiError(error);
+      throw PaymentService.handleApiError(error);
     }
   }
 
