@@ -3,8 +3,14 @@ import { PrismaClient } from '@prisma/client';
 import { BookingStatus } from '../../types/booking.types';
 import {
   BookingValidationError,
-  BookingPermissionError
+  BookingPermissionError,
+  BookingErrorCode
 } from '../../types/booking.errors';
+import { auditLogger } from '../../utils/auditLogger';
+
+// Mock audit logger
+jest.mock('../../utils/auditLogger');
+const mockAuditLogger = auditLogger as jest.Mocked<typeof auditLogger>;
 
 // Mock Prisma
 jest.mock('@prisma/client');
@@ -33,6 +39,9 @@ describe('AvailabilityService', () => {
   beforeEach(() => {
     availabilityService = new AvailabilityService(mockPrisma as any);
     jest.clearAllMocks();
+
+    // Setup audit logger mock
+    mockAuditLogger.logAvailabilityEvent.mockResolvedValue();
   });
 
   describe('createAvailability', () => {
@@ -84,6 +93,23 @@ describe('AvailabilityService', () => {
       expect(result.dayOfWeek).toBe(1);
       expect(result.startTime).toBe('09:00');
       expect(result.endTime).toBe('17:00');
+
+      // Verify audit logging
+      expect(mockAuditLogger.logAvailabilityEvent).toHaveBeenCalledWith(
+        'AVAILABILITY_CREATED',
+        'tutor-user-1',
+        'availability-1',
+        undefined,
+        expect.objectContaining({
+          dayOfWeek: 1,
+          startTime: '09:00',
+          endTime: '17:00',
+          isRecurring: true,
+          timezone: 'Europe/London'
+        }),
+        expect.any(Object)
+      );
+
       expect(mockPrisma.tutorAvailability.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           tutorId: 'tutor-1',
@@ -94,6 +120,7 @@ describe('AvailabilityService', () => {
           slotDuration: 60,
           bufferTime: 15,
           maxBookings: 1,
+          timezone: 'Europe/London',
         }),
       });
     });

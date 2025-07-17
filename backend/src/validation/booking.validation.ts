@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { LessonType, TeachingMode, BookingStatus } from '../types/booking.types';
+import { SUPPORTED_TIMEZONES } from '../utils/timezoneUtils';
 
 // Helper schemas
 const timeSchema = z.string().regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, {
@@ -12,6 +13,10 @@ const dateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {
 
 const isoDateTimeSchema = z.string().datetime({
   message: 'Must be a valid ISO datetime string',
+});
+
+const timezoneSchema = z.enum(SUPPORTED_TIMEZONES as unknown as [string, ...string[]], {
+  errorMap: () => ({ message: 'Invalid timezone. Must be one of the supported timezones.' })
 });
 
 // Enum validation schemas
@@ -123,6 +128,7 @@ export const createAvailabilitySchema = z.object({
     slotDuration: z.number().int().min(15).max(480).default(60),
     bufferTime: z.number().int().min(0).max(60).default(15),
     maxBookings: z.number().int().min(1).max(10).default(1),
+    timezone: timezoneSchema.default('Europe/London'),
     notes: z.string().max(500).optional(),
   }).refine(
     (data) => {

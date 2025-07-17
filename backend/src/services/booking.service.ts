@@ -17,6 +17,14 @@ import {
   BookingPermissionError,
   createBookingError
 } from '../types/booking.errors';
+import { auditLogger, AuditEventType } from '../utils/auditLogger';
+import {
+  validateTimezone,
+  timeRangesOverlap,
+  calculateEndTime as calcEndTime,
+  isPastDateTime,
+  addBufferTime
+} from '../utils/timezoneUtils';
 
 export class BookingService {
   private prisma: PrismaClient;
@@ -104,50 +112,87 @@ export class BookingService {
       bookingData.subject
     );
 
-    // Create the booking
-    const booking = await this.prisma.booking.create({
-      data: {
-        studentId,
-        tutorId: bookingData.tutorId,
+    // Create the booking with transaction handling
+    const booking = await this.prisma.$transaction(async (tx) => {
+      // Double-check availability within transaction to prevent race conditions
+      await this.checkAvailabilityAndConflictsInTransaction(
+        tx,
+        bookingData.tutorId,
         scheduledDate,
-        startTime: bookingData.startTime,
-        endTime,
-        duration: bookingData.duration,
-        subject: bookingData.subject,
-        qualificationLevel: bookingData.qualificationLevel,
-        lessonType: bookingData.lessonType || LessonType.REGULAR,
-        teachingMode: bookingData.teachingMode || TeachingMode.ONLINE,
-        status: BookingStatus.PENDING,
-        hourlyRate: pricing.hourlyRate,
-        totalPrice: pricing.totalPrice,
-        currency: 'GBP',
-        studentNotes: bookingData.studentNotes,
-        confirmationCode: this.generateConfirmationCode(),
-      },
-      include: {
-        student: {
-          select: {
-            id: true,
-            email: true,
-            studentProfile: {
-              select: {
-                id: true,
-                gradeLevel: true,
+        bookingData.startTime,
+        endTime
+      );
+
+      // Create the booking
+      const newBooking = await tx.booking.create({
+        data: {
+          studentId,
+          tutorId: bookingData.tutorId,
+          scheduledDate,
+          startTime: bookingData.startTime,
+          endTime,
+          duration: bookingData.duration,
+          subject: bookingData.subject,
+          qualificationLevel: bookingData.qualificationLevel,
+          lessonType: bookingData.lessonType || LessonType.REGULAR,
+          teachingMode: bookingData.teachingMode || TeachingMode.ONLINE,
+          status: BookingStatus.PENDING,
+          hourlyRate: pricing.hourlyRate,
+          totalPrice: pricing.totalPrice,
+          currency: 'GBP',
+          studentNotes: bookingData.studentNotes,
+          confirmationCode: this.generateConfirmationCode(),
+        },
+        include: {
+          student: {
+            select: {
+              id: true,
+              email: true,
+              studentProfile: {
+                select: {
+                  id: true,
+                  gradeLevel: true,
+                }
               }
             }
-          }
-        },
-        tutor: {
-          include: {
-            user: {
-              select: {
-                email: true,
+          },
+          tutor: {
+            include: {
+              user: {
+                select: {
+                  email: true,
+                }
               }
             }
           }
         }
-      }
+      });
+
+      return newBooking;
     });
+
+    // Log booking creation audit event
+    await auditLogger.logBookingEvent(
+      AuditEventType.BOOKING_CREATED,
+      studentId,
+      booking.id,
+      undefined,
+      {
+        tutorId: bookingData.tutorId,
+        scheduledDate: scheduledDate.toISOString(),
+        startTime: bookingData.startTime,
+        endTime,
+        duration: bookingData.duration,
+        status: BookingStatus.PENDING,
+        totalPrice: pricing.totalPrice
+      },
+      {
+        subject: bookingData.subject,
+        qualificationLevel: bookingData.qualificationLevel,
+        lessonType: bookingData.lessonType,
+        teachingMode: bookingData.teachingMode
+      }
+    );
 
     return this.formatBookingResponse(booking);
   }
@@ -400,6 +445,20 @@ export class BookingService {
       }
     }
 
+    // Store original values for audit logging
+    const originalValues = {
+      scheduledDate: booking.scheduledDate,
+      startTime: booking.startTime,
+      endTime: booking.endTime,
+      duration: booking.duration,
+      subject: booking.subject,
+      qualificationLevel: booking.qualificationLevel,
+      lessonType: booking.lessonType,
+      teachingMode: booking.teachingMode,
+      studentNotes: booking.studentNotes,
+      tutorNotes: booking.tutorNotes
+    };
+
     // Update the booking
     const updatedBooking = await this.prisma.booking.update({
       where: { id: bookingId },
@@ -428,6 +487,19 @@ export class BookingService {
         }
       }
     });
+
+    // Log booking update audit event
+    await auditLogger.logBookingEvent(
+      AuditEventType.BOOKING_RESCHEDULED,
+      userId,
+      bookingId,
+      originalValues,
+      updateFields,
+      {
+        updateType: 'booking_update',
+        fieldsChanged: Object.keys(updateFields)
+      }
+    );
 
     return this.formatBookingResponse(updatedBooking);
   }
@@ -484,6 +556,21 @@ export class BookingService {
         }
       }
     });
+
+    // Log booking cancellation audit event
+    await auditLogger.logBookingStatusChange(
+      userId,
+      bookingId,
+      booking.status,
+      BookingStatus.CANCELLED,
+      cancelData.cancellationReason,
+      {
+        cancelledBy: userId,
+        cancelledAt: new Date().toISOString(),
+        originalScheduledDate: booking.scheduledDate,
+        originalStartTime: booking.startTime
+      }
+    );
 
     return this.formatBookingResponse(cancelledBooking);
   }
@@ -591,6 +678,22 @@ export class BookingService {
       }
     });
 
+    // Log booking confirmation audit event
+    await auditLogger.logBookingStatusChange(
+      tutorUserId,
+      bookingId,
+      BookingStatus.PENDING,
+      BookingStatus.CONFIRMED,
+      'Booking confirmed by tutor',
+      {
+        confirmedAt: new Date().toISOString(),
+        tutorNotes: confirmData.tutorNotes,
+        meetingUrl: confirmData.meetingUrl,
+        meetingId: confirmData.meetingId,
+        hasPassword: !!confirmData.meetingPassword
+      }
+    );
+
     return this.formatBookingResponse(confirmedBooking);
   }
 
@@ -641,6 +744,22 @@ export class BookingService {
         }
       }
     });
+
+    // Log booking completion audit event
+    await auditLogger.logBookingStatusChange(
+      userId,
+      bookingId,
+      BookingStatus.CONFIRMED,
+      BookingStatus.COMPLETED,
+      'Booking marked as completed',
+      {
+        completedAt: new Date().toISOString(),
+        completedBy: userId,
+        originalScheduledDate: booking.scheduledDate,
+        originalStartTime: booking.startTime,
+        originalEndTime: booking.endTime
+      }
+    );
 
     return this.formatBookingResponse(completedBooking);
   }
@@ -725,6 +844,92 @@ export class BookingService {
         'There is a scheduling conflict with this booking',
         conflictingBookings[0].id
       );
+    }
+  }
+
+  /**
+   * Check availability and conflicts within a transaction to prevent race conditions
+   */
+  private async checkAvailabilityAndConflictsInTransaction(
+    tx: any,
+    tutorId: string,
+    date: Date,
+    startTime: string,
+    endTime: string,
+    excludeBookingId?: string
+  ): Promise<void> {
+    // Check if tutor has availability for this day and time
+    const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
+
+    // Find matching availability slots
+    const availabilitySlots = await tx.tutorAvailability.findMany({
+      where: {
+        tutorId,
+        isActive: true,
+        OR: [
+          // Recurring weekly slots for this day of week
+          {
+            dayOfWeek,
+            isRecurring: true,
+            startTime: { lte: startTime },
+            endTime: { gte: endTime },
+            OR: [
+              { validFrom: null, validUntil: null },
+              { validFrom: { lte: date }, validUntil: null },
+              { validFrom: null, validUntil: { gte: date } },
+              { validFrom: { lte: date }, validUntil: { gte: date } },
+            ]
+          },
+          // One-time slots for this specific date
+          {
+            specificDate: date,
+            isRecurring: false,
+            startTime: { lte: startTime },
+            endTime: { gte: endTime },
+          }
+        ]
+      }
+    });
+
+    if (availabilitySlots.length === 0) {
+      throw createBookingError(BookingErrorCode.TUTOR_NOT_AVAILABLE);
+    }
+
+    // Check for booking conflicts with enhanced time overlap detection
+    const conflictingBookings = await tx.booking.findMany({
+      where: {
+        tutorId,
+        scheduledDate: date,
+        id: excludeBookingId ? { not: excludeBookingId } : undefined,
+        status: { in: [BookingStatus.PENDING, BookingStatus.CONFIRMED] },
+      }
+    });
+
+    // Use enhanced time overlap detection
+    for (const booking of conflictingBookings) {
+      if (timeRangesOverlap(startTime, endTime, booking.startTime, booking.endTime)) {
+        throw new BookingConflictError(
+          'There is a scheduling conflict with this booking',
+          booking.id
+        );
+      }
+    }
+
+    // Check buffer time requirements
+    for (const slot of availabilitySlots) {
+      if (slot.bufferTime > 0) {
+        const { bufferedStart, bufferedEnd } = addBufferTime(startTime, endTime, slot.bufferTime);
+
+        // Check if any existing bookings violate buffer time
+        for (const booking of conflictingBookings) {
+          if (timeRangesOverlap(bufferedStart, bufferedEnd, booking.startTime, booking.endTime)) {
+            throw createBookingError(BookingErrorCode.BOOKING_CONFLICT, {
+              reason: 'Buffer time conflict',
+              bufferTime: slot.bufferTime
+            });
+          }
+        }
+      }
     }
   }
 
