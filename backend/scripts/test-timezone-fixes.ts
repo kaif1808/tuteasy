@@ -39,9 +39,9 @@ try {
   console.log('   ✓ London time is Date object:', londonTime instanceof Date);
   console.log('   ✓ New York time is Date object:', nyTime instanceof Date);
   console.log('   ✓ Tokyo time is Date object:', tokyoTime instanceof Date);
-  console.log('   ✓ Times are different (as expected):', 
-    londonTime.getTime() !== nyTime.getTime() || 
-    nyTime.getTime() !== tokyoTime.getTime()
+  console.log('   ✓ All times represent same moment (correct):',
+    londonTime.getTime() === nyTime.getTime() &&
+    nyTime.getTime() === tokyoTime.getTime()
   );
   
   // Test error handling
@@ -57,25 +57,37 @@ try {
   console.log('   ❌ getCurrentTimeInTimezone error:', error);
 }
 
-// Test 3: Convert to Timezone
-console.log('3. Testing convertToTimezone:');
+// Test 3: Convert to Timezone and Format
+console.log('3. Testing convertToTimezone and timezone formatting:');
 try {
   const testDate = new Date('2024-01-15T12:00:00Z'); // UTC noon
-  
+
   const londonTime = convertToTimezone(testDate, 'Europe/London');
   const nyTime = convertToTimezone(testDate, 'America/New_York');
   const tokyoTime = convertToTimezone(testDate, 'Asia/Tokyo');
-  
+
   console.log('   ✓ London conversion is Date object:', londonTime instanceof Date);
   console.log('   ✓ New York conversion is Date object:', nyTime instanceof Date);
   console.log('   ✓ Tokyo conversion is Date object:', tokyoTime instanceof Date);
-  
-  // Test that conversions are different (they should be in different timezones)
-  console.log('   ✓ Conversions produce different times:', 
-    londonTime.getTime() !== nyTime.getTime() || 
-    nyTime.getTime() !== tokyoTime.getTime()
+
+  // Test that all conversions represent the same moment in time (correct behavior)
+  console.log('   ✓ All conversions represent same moment:',
+    londonTime.getTime() === nyTime.getTime() &&
+    nyTime.getTime() === tokyoTime.getTime()
   );
-  
+
+  // Test that formatting shows different times in different timezones
+  const londonFormatted = formatDateForTimezone(testDate, 'Europe/London', 'time');
+  const nyFormatted = formatDateForTimezone(testDate, 'America/New_York', 'time');
+  const tokyoFormatted = formatDateForTimezone(testDate, 'Asia/Tokyo', 'time');
+
+  console.log('   ✓ London formatted time:', londonFormatted);
+  console.log('   ✓ New York formatted time:', nyFormatted);
+  console.log('   ✓ Tokyo formatted time:', tokyoFormatted);
+  console.log('   ✓ Formatted times are different:',
+    londonFormatted !== nyFormatted && nyFormatted !== tokyoFormatted
+  );
+
   // Test error handling
   try {
     convertToTimezone(testDate, 'Invalid/Timezone');
@@ -83,7 +95,7 @@ try {
   } catch (e) {
     console.log('   ✓ Correctly throws error for invalid timezone');
   }
-  
+
   console.log('   ✅ convertToTimezone working correctly\n');
 } catch (error) {
   console.log('   ❌ convertToTimezone error:', error);
