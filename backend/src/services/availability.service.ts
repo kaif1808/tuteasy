@@ -14,6 +14,13 @@ import {
   BookingPermissionError,
   createBookingError
 } from '../types/booking.errors';
+import { auditLogger, AuditEventType } from '../utils/auditLogger';
+import {
+  validateTimezone,
+  timeRangesOverlap,
+  getCurrentTimeInTimezone,
+  formatDateForTimezone
+} from '../utils/timezoneUtils';
 
 export class AvailabilityService {
   private prisma: PrismaClient;
@@ -50,6 +57,15 @@ export class AvailabilityService {
       availabilityData.specificDate ? new Date(availabilityData.specificDate) : undefined
     );
 
+    // Validate timezone if provided
+    const timezone = availabilityData.timezone || 'Europe/London';
+    if (!validateTimezone(timezone)) {
+      throw createBookingError(BookingErrorCode.INVALID_TIME_SLOT, {
+        field: 'timezone',
+        value: timezone
+      });
+    }
+
     // Create availability slot
     const availability = await this.prisma.tutorAvailability.create({
       data: {
@@ -64,9 +80,31 @@ export class AvailabilityService {
         slotDuration: availabilityData.slotDuration ?? 60,
         bufferTime: availabilityData.bufferTime ?? 15,
         maxBookings: availabilityData.maxBookings ?? 1,
+        timezone: timezone,
         notes: availabilityData.notes,
       }
     });
+
+    // Log availability creation audit event
+    await auditLogger.logAvailabilityEvent(
+      AuditEventType.AVAILABILITY_CREATED,
+      tutorUserId,
+      availability.id,
+      undefined,
+      {
+        dayOfWeek: availabilityData.dayOfWeek,
+        startTime: availabilityData.startTime,
+        endTime: availabilityData.endTime,
+        isRecurring: availabilityData.isRecurring ?? true,
+        timezone: timezone,
+        slotDuration: availabilityData.slotDuration ?? 60,
+        bufferTime: availabilityData.bufferTime ?? 15
+      },
+      {
+        tutorId: tutor.id,
+        specificDate: availabilityData.specificDate
+      }
+    );
 
     return this.formatAvailabilityResponse(availability);
   }
