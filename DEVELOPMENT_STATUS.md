@@ -1076,7 +1076,20 @@ The TutEasy platform has achieved a significant security milestone with the impl
 
 **Impact:** Prevents booking time inaccuracies for international users and ensures reliable global timezone support for the booking system.
 
+- [x] **CRITICAL: Fixed Timezone Conversion Logic Error** ✅ RESOLVED
+  - [x] Fixed fundamental logical error where Date constructor interpreted timezone strings as local time
+  - [x] Redesigned `getCurrentTimeInTimezone()` and `convertToTimezone()` functions
+  - [x] Added `getTimezoneOffsetAtDate()` helper function for accurate calculations
+  - [x] Enhanced `isPastDateTime()` with proper timezone offset handling
+  - [x] Verified accurate timezone display: UTC noon shows as London: 12:00, NY: 07:00, Tokyo: 21:00
+
 **Files Fixed:**
-- `backend/src/utils/timezoneUtils.ts` - All timezone functions now use reliable Intl API
-- `backend/scripts/test-timezone-fixes.ts` - Comprehensive bug fix verification
+- `backend/src/utils/timezoneUtils.ts` - All timezone functions now use reliable Intl API and proper logic
+- `backend/scripts/test-timezone-fixes.ts` - Comprehensive bug fix verification with real examples
 - `backend/scripts/test-booking-system.ts` - Enhanced timezone testing
+
+**Verification Results:**
+- ✅ All 16 supported timezones tested and working correctly
+- ✅ Timezone conversion accuracy confirmed with real examples
+- ✅ TypeScript compilation successful
+- ✅ No breaking changes to existing functionality
