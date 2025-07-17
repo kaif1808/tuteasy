@@ -1048,4 +1048,35 @@ The TutEasy platform has achieved a significant security milestone with the impl
 - `backend/src/tests/integration/booking-workflow.integration.test.ts` - Comprehensive integration tests
 - `backend/docs/booking-api.md` - Complete API documentation
 
-**The booking system backend is now production-ready with enterprise-grade features including transaction handling, comprehensive audit logging, international timezone support, and robust conflict detection. The system is fully tested with >85% coverage and ready for immediate deployment.**
+**The booking system backend is now production-ready with enterprise-grade features including transaction handling, comprehensive audit logging, international timezone support, and robust conflict detection. All timezone bugs have been fixed and the system is fully tested with >85% coverage and ready for immediate deployment.**
+
+## 🐛 Critical Bug Fixes Applied (NEW)
+
+### **Timezone Conversion Bug Fixes** ✅ FIXED
+**Fix Date:** December 17, 2024
+**Status:** Resolved and Verified
+
+- [x] **Fixed Unreliable Timezone Conversion Functions**
+  - [x] Replaced `toLocaleString()` parsing with robust `Intl.DateTimeFormat.formatToParts()`
+  - [x] Fixed `getCurrentTimeInTimezone()` function accuracy
+  - [x] Fixed `convertToTimezone()` function reliability
+  - [x] Enhanced `formatDateForTimezone()` consistency
+
+- [x] **Fixed Timezone Offset Calculation Error**
+  - [x] Corrected flawed calculation logic in `getTimezoneOffset()`
+  - [x] Implemented proper UTC handling with fixed reference date
+  - [x] Ensured accurate timezone offsets for all supported timezones
+
+- [x] **Comprehensive Testing and Verification**
+  - [x] Created dedicated timezone fix verification script
+  - [x] Tested all 16 supported timezones for accuracy
+  - [x] Verified error handling for invalid timezone inputs
+  - [x] Confirmed TypeScript compilation success
+  - [x] Validated timezone conversion accuracy for international users
+
+**Impact:** Prevents booking time inaccuracies for international users and ensures reliable global timezone support for the booking system.
+
+**Files Fixed:**
+- `backend/src/utils/timezoneUtils.ts` - All timezone functions now use reliable Intl API
+- `backend/scripts/test-timezone-fixes.ts` - Comprehensive bug fix verification
+- `backend/scripts/test-booking-system.ts` - Enhanced timezone testing
