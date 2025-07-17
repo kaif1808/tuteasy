@@ -101,9 +101,14 @@ export const BookingPage: React.FC = () => {
     if (!selectedDate || !selectedTime || !tutorData) return;
 
     // Redirect to payment page with booking details
+    // Extract a display name from email (before @ symbol) as a fallback
+    const tutorDisplayName = tutorData.user?.email
+      ? tutorData.user.email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+      : 'Unknown Tutor';
+
     const paymentParams = new URLSearchParams({
       duration: '60', // 1 hour default
-      tutorName: tutorData.user?.email || 'Unknown Tutor',
+      tutorName: tutorDisplayName,
       returnUrl: '/dashboard',
     });
 

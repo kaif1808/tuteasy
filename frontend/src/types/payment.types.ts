@@ -152,6 +152,7 @@ export interface RefundRequest {
   id: string;
   transactionId: string;
   amount: number; // Amount to refund in pence
+  currency: string; // Currency of the original transaction
   reason: 'duplicate' | 'fraudulent' | 'requested_by_customer' | 'lesson_canceled' | 'other';
   description?: string;
   status: 'pending' | 'approved' | 'rejected' | 'processed';

@@ -9,6 +9,7 @@ import { PaymentForm } from '../components/features/payment/components/PaymentFo
 import { useCreatePaymentIntent, useBillingDetails } from '../hooks/usePayment';
 import { useToast } from '../hooks/useToast';
 import { useAuthStore } from '../stores/authStore';
+import { formatCurrency } from '../utils/paymentValidation';
 import type { CreatePaymentIntentRequest } from '../types/payment.types';
 
 // Initialize Stripe
@@ -277,7 +278,7 @@ export const PaymentPage: React.FC<PaymentPageProps> = () => {
                   <div className="flex justify-between items-center">
                     <span className="font-semibold">Total Amount:</span>
                     <span className="text-lg font-bold">
-                      £{(paymentAmount / 100).toFixed(2)}
+                      {formatCurrency(paymentAmount, 'GBP')}
                     </span>
                   </div>
                 </div>

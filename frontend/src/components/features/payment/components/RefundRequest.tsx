@@ -263,7 +263,7 @@ const RefundRequestList: React.FC<RefundRequestListProps> = ({
                 {getStatusBadge(refund.status)}
               </div>
               <p className="text-sm text-gray-600">
-                Amount: {formatCurrency(refund.amount, 'GBP')}
+                Amount: {formatCurrency(refund.amount, refund.currency as any)}
               </p>
             </div>
             <Button
