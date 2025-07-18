@@ -96,21 +96,27 @@ export const BookingPage: React.FC = () => {
     setSelectedTime(time);
   }, []);
 
-  // Handle booking confirmation
+  // Handle booking confirmation - redirect to payment
   const handleBookingConfirm = useCallback(async () => {
     if (!selectedDate || !selectedTime || !tutorData) return;
 
-    const bookingRequest = {
-      tutorId,
-      date: selectedDate.toISOString().split('T')[0],
-      time: selectedTime,
-      duration: 60, // 1 hour default
-      subject: tutorData.subject,
-    };
+    // Redirect to payment page with booking details
+    // Extract a display name from email (before @ symbol) as a fallback
+    // Handle both possible data structures for robustness
+    const tutorEmail = tutorData.user?.email || (tutorData as any).email;
+    const tutorDisplayName = tutorEmail
+      ? tutorEmail.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())
+      : 'Unknown Tutor';
 
-    createBookingMutation.mutate(bookingRequest);
+    const paymentParams = new URLSearchParams({
+      duration: '60', // 1 hour default
+      tutorName: tutorDisplayName,
+      returnUrl: '/dashboard',
+    });
+
+    navigate(`/payment/${tutorId}?${paymentParams.toString()}`);
     setShowConfirmationModal(false);
-  }, [selectedDate, selectedTime, tutorData, tutorId, createBookingMutation]);
+  }, [selectedDate, selectedTime, tutorData, tutorId, navigate]);
 
   // Loading state
   if (tutorLoading || datesLoading) {

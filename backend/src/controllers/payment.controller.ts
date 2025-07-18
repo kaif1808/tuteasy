@@ -18,7 +18,7 @@ export class PaymentController {
         throw new AppError('Authentication error', 401);
       }
 
-      const { clientSecret, amount } = await this.paymentService.createPaymentIntent(
+      const { clientSecret, amount, currency } = await this.paymentService.createPaymentIntent(
         tutorId,
         duration,
         userId
@@ -28,6 +28,7 @@ export class PaymentController {
         status: 'success',
         clientSecret,
         amount,
+        currency,
       });
     } catch (error) {
       next(error);

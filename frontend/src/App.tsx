@@ -17,6 +17,7 @@ import { StudentProfileTest } from './pages/StudentProfileTest';
 import { TutorSearchPage } from './pages/TutorSearchPage';
 import { BookingPage } from './pages/BookingPage';
 import { BookingDemo } from './pages/BookingDemo';
+import { PaymentPage } from './pages/PaymentPage';
 import { useAuthStore } from './stores/authStore';
 
 function App() {
@@ -54,7 +55,17 @@ function App() {
           
           {/* Booking routes */}
           <Route path="/book/:tutorId" element={<BookingPage />} />
-          
+
+          {/* Payment routes */}
+          <Route
+            path="/payment/:tutorId"
+            element={
+              <ProtectedRoute>
+                <PaymentPage />
+              </ProtectedRoute>
+            }
+          />
+
           {/* Protected routes */}
           <Route 
             path="/dashboard" 
