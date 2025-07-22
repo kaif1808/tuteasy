@@ -169,4 +169,7 @@ docker-secrets/
 # Commercial source protection
 obfuscated/
 minified/
-compiled/ 
+compiled/
+
+# External tools and orchestrators
+gemini-cli-orchestrator/
