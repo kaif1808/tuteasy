@@ -52,6 +52,10 @@ model User {
 
   // Booking relations
   studentBookings    Booking[]       @relation("StudentBookings")
+  
+  // Video conferencing relations
+  sessionParticipations SessionParticipant[]
+  sessionChats         SessionChat[]
 
   @@index([email])
 }
@@ -384,10 +388,13 @@ model Booking {
   cancellationReason String?          @db.Text
   rescheduledFrom   String?           // Original booking ID if rescheduled
 
-  // Meeting details (for online lessons)
-  meetingUrl        String?
-  meetingId         String?
-  meetingPassword   String?
+  // Meeting details (deprecated - replaced by VideoSession)
+  meetingUrl        String?           @deprecated("Use videoSession instead")
+  meetingId         String?           @deprecated("Use videoSession instead")
+  meetingPassword   String?           @deprecated("Use videoSession instead")
+  
+  // Video session reference
+  videoSession      VideoSession?
 
   // Timestamps
   createdAt         DateTime          @default(now())
@@ -696,3 +703,238 @@ enum TransactionStatus {
   FAILED
   REFUNDED
 }
+
+// ============================================
+// VIDEO CONFERENCING SYSTEM MODELS
+// ============================================
+
+// Video session management
+model VideoSession {
+  id                String              @id @default(uuid())
+  bookingId         String              @unique
+  booking           Booking             @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  roomId            String              @unique
+  
+  // Session configuration
+  maxParticipants   Int                 @default(2)
+  recordingEnabled  Boolean             @default(false)
+  whiteboardEnabled Boolean             @default(true)
+  screenShareEnabled Boolean            @default(true)
+  chatEnabled       Boolean             @default(true)
+  
+  // Session state
+  status            VideoSessionStatus  @default(WAITING)
+  startedAt         DateTime?
+  endedAt           DateTime?
+  actualDuration    Int?               // in seconds
+  
+  // Quality metrics
+  qualityMetrics    Json?              // Connection quality stats
+  
+  // Privacy & Compliance
+  consentObtained   Boolean            @default(false)
+  parentalConsent   Boolean            @default(false) // For COPPA compliance
+  
+  // Timestamps
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  
+  // Relations
+  participants      SessionParticipant[]
+  recordings        SessionRecording[]
+  whiteboardSnapshots WhiteboardSnapshot[]
+  chatMessages      SessionChat[]
+  
+  @@index([bookingId])
+  @@index([roomId])
+  @@index([status])
+  @@index([startedAt])
+  @@map("video_sessions")
+}
+
+enum VideoSessionStatus {
+  WAITING
+  ACTIVE
+  PAUSED
+  ENDED
+  FAILED
+}
+
+// Session participant tracking
+model SessionParticipant {
+  id              String          @id @default(uuid())
+  sessionId       String
+  session         VideoSession    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Participant details
+  role            ParticipantRole @default(PARTICIPANT)
+  joinedAt        DateTime        @default(now())
+  leftAt          DateTime?
+  
+  // Participant metrics
+  connectionQuality Json?         // RTCStats data
+  speakingTime    Int?           // in seconds
+  videoEnabled    Boolean        @default(true)
+  audioEnabled    Boolean        @default(true)
+  
+  // Permissions
+  canShare        Boolean        @default(false)
+  canRecord       Boolean        @default(false)
+  canModerate     Boolean        @default(false)
+  
+  // Audit fields
+  ipAddress       String?
+  userAgent       String?
+  
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  
+  @@unique([sessionId, userId])
+  @@index([sessionId])
+  @@index([userId])
+  @@index([joinedAt])
+  @@map("session_participants")
+}
+
+enum ParticipantRole {
+  HOST
+  PARTICIPANT
+  OBSERVER
+}
+
+// Session recording management
+model SessionRecording {
+  id              String          @id @default(uuid())
+  sessionId       String
+  session         VideoSession    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  
+  // Recording details
+  startTime       DateTime
+  endTime         DateTime?
+  duration        Int?            // in seconds
+  fileSize        BigInt?         // in bytes
+  
+  // Storage references
+  videoUrl        String?
+  audioUrl        String?
+  whiteboardUrl   String?
+  mergedUrl       String?         // Combined recording
+  thumbnailUrl    String?
+  storageKey      String?         // S3/Cloud storage key
+  
+  // Processing status
+  status          RecordingStatus @default(UPLOADING)
+  processingError String?         @db.Text
+  processingStartedAt DateTime?
+  processingCompletedAt DateTime?
+  
+  // Metadata
+  resolution      String?
+  format          String          @default("mp4")
+  frameRate       Int?
+  bitrate         Int?
+  hasVideo        Boolean         @default(true)
+  hasAudio        Boolean         @default(true)
+  hasWhiteboard   Boolean         @default(false)
+  hasScreenShare  Boolean         @default(false)
+  
+  // Privacy & Compliance
+  consentObtained Boolean         @default(false)
+  retentionDate   DateTime?       // When to auto-delete
+  deletedAt       DateTime?       // Soft delete
+  
+  // Access tracking (FERPA compliance)
+  accessLogs      Json?           // Array of access events
+  lastAccessedAt  DateTime?
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  @@index([sessionId])
+  @@index([status])
+  @@index([retentionDate])
+  @@map("session_recordings")
+}
+
+enum RecordingStatus {
+  UPLOADING
+  PROCESSING
+  READY
+  FAILED
+  DELETED
+}
+
+// Whiteboard snapshot management
+model WhiteboardSnapshot {
+  id              String          @id @default(uuid())
+  sessionId       String
+  session         VideoSession    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  
+  // Snapshot data
+  timestamp       DateTime
+  imageUrl        String
+  thumbnailUrl    String?
+  storageKey      String?         // S3/Cloud storage key
+  
+  // Whiteboard state
+  revision        Int
+  operations      Json?           // Array of drawing operations
+  canvasData      Json?           // Full canvas state
+  
+  // Metadata
+  fileSize        BigInt?         // in bytes
+  width           Int?
+  height          Int?
+  
+  createdAt       DateTime        @default(now())
+  
+  @@index([sessionId])
+  @@index([timestamp])
+  @@index([revision])
+  @@map("whiteboard_snapshots")
+}
+
+// Session chat messages
+model SessionChat {
+  id              String          @id @default(uuid())
+  sessionId       String
+  session         VideoSession    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Message content
+  message         String          @db.Text
+  messageType     ChatMessageType @default(TEXT)
+  
+  // File attachment (if applicable)
+  attachmentUrl   String?
+  attachmentName  String?
+  attachmentSize  BigInt?         // in bytes
+  attachmentType  String?         // MIME type
+  
+  // Message metadata
+  editedAt        DateTime?
+  deletedAt       DateTime?       // Soft delete
+  isSystemMessage Boolean         @default(false)
+  
+  // Timestamps
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  @@index([sessionId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("session_chat")
+}
+
+enum ChatMessageType {
+  TEXT
+  FILE
+  IMAGE
+  SYSTEM
+  EQUATION
+}
+
+// Update existing User model to include new relations
