@@ -1,5 +1,10 @@
 # TutEasy Development Status
 
+## ✅ Completed - MCP Gemini CLI Standardization (NEW)
+- Standardized MCP tool config to a single `gemini-cli` entry across user and workspace configs
+- Updated filesystem tool paths from `/Users/kaifaulkner/...` to `/Users/kai/...`
+- Verified `gemini-mcp-tool` launches successfully and listens on stdio
+
 ## ✅ Completed - Payment Processing Frontend Integration (NEW)
 
 ### Complete Payment System Implementation ✅ COMPLETE (NEW)

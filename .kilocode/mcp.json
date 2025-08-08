@@ -15,7 +15,7 @@
       "args": [
         "-y",
         "@modelcontextprotocol/server-filesystem",
-        "/Users/kaifaulkner/Desktop/tuteasy"
+        "/Users/kai/Desktop/tuteasy"
       ]
     },
     "sequentialthinking": {
@@ -47,11 +47,9 @@
         "postgresql://tuteasy_user:tuteasy_password@localhost:5433/tuteasy_db"
       ]
     },
-    "gemini-collaboration-guide": {
-      "command": "node",
-      "args": [
-        "/Users/kaifaulkner/Desktop/tuteasy/tuteasy/gemini-cli-orchestrator/gemini-collaboration-guide.mjs"
-      ]
+    "gemini-cli": {
+      "command": "npx",
+      "args": ["-y", "gemini-mcp-tool"]
     }
   }
 }
