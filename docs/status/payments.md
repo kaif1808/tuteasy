@@ -1,35 +1,51 @@
 ## Payments Status
 
-Last updated: 2025-08-08
+### Status Summary
+- Frontend: COMPLETE — Stripe Elements-based flow with comprehensive UI, hooks, and services
+- Backend: IN PROGRESS — Data models and create-intent endpoint implemented
 
-### Summary
-- **State**: Amber — Frontend complete; Backend at MVP; webhooks & reconciliation next
+### Frontend Implementation (Complete)
+- Dependencies: `@stripe/stripe-js`, `@stripe/react-stripe-js`
+- Types & Validation: `frontend/src/types/payment.types.ts`, `frontend/src/utils/paymentValidation.ts`
+  - Intents, methods, transactions, invoices, refunds; Zod schemas; currency utilities; Luhn validation
+- Service Layer: `frontend/src/services/paymentService.ts` (React Query integration)
+  - Create/confirm intents; CRUD for payment methods; history with filtering/pagination; invoice generation; PDF download; refunds; billing details; robust error handling
+- Hooks: `frontend/src/hooks/usePayment.ts`
+  - `usePaymentProcessing`, `useCreatePaymentIntent`, method CRUD hooks, history/invoice/refund/billing hooks; toast integration
+- Core Components:
+  - `PaymentForm.tsx`: PaymentElement + AddressElement, billing form, save method, loading/error states, responsive + accessible
+  - `BillingInfo.tsx`: Manage billing details; edit/view modes; country-aware validation
+  - `PaymentHistory.tsx`: Filters, badges, details expansion, pagination, export prep, loading/error states
+  - `SavedPaymentMethods.tsx`: Brand icons, default selection, edit/delete, empty state CTA
+  - `InvoiceDisplay.tsx`: Full invoice details, PDF, participants, line items, badges
+  - `RefundRequest.tsx`: Partial/full refunds, reason selection, history, modal UI
+- Payment Page: `frontend/src/pages/PaymentPage.tsx`
+  - Elements provider, intent lifecycle, success/error states, lesson summary, booking integration, responsive design
+- Integration & Config
+  - Routing in `App.tsx`; booking → payment redirect; env var configuration; clean exports; GBP currency support; role-aware features
 
-### Frontend
-- Stripe Elements: PaymentElement, AddressElement integrated
-- Billing management (CRUD), default payment method, saved methods
-- Transactions history with filters; invoices view with PDF download
-- Refund UI (full/partial) with validation and user feedback
-- Error/Loading states and toasts implemented throughout
+#### Technical Notes
+- Security: Stripe Elements (PCI), no card storage
+- Validation: Zod; custom validators
+- State: React Query
+- Error Handling: User-friendly with retries
+- Accessibility: ARIA, keyboard navigation, SR support
+- Performance: Caching and loading states
 
-### Backend (MVP)
-- Schema entities: `invoice`, `invoice_item`, `transaction`, `payment_method`
+### Bug Fixes (Payments)
+- Fixed tutor name display on BookingPage (email prefix → Proper Case)
+- Currency handling type safety; removed unsafe casts; GBP fallback for unsupported currencies
+- Currency formatting mismatch fixed (currency in intent response; propagated to UI)
+- Fixed static method call misuse (`PaymentService.handleApiError` used consistently)
+- Backend payment controller updated to include currency; service returns `{ clientSecret, amount, currency }`
+
+### Backend Implementation (In Progress)
+- Schema: `invoices`, `invoice_items`, `transactions`, `payment_methods`
 - Endpoint: `POST /api/payments/create-intent`
+- Stripe SDK: `PaymentService` creates `PaymentIntent`
 
-### In Progress
-- Webhook handler (payment_intent.succeeded/processing/canceled, charge.*, invoice.*)
-- Idempotent processing and retry-safe reconciliation pipeline
+### Next Steps
+- Complete backend flows (webhooks, reconciliation, refunds, ledger)
+- Add invoices export and emailing
+- Harden error handling and retries; idempotency keys
 
-### Next Milestones (2-3 weeks)
-- [ ] Implement Stripe webhook endpoint with signature verification
-- [ ] Persist lifecycle changes and reconcile failed retries
-- [ ] Refunds backend: create refund and sync status to UI
-- [ ] Reporting endpoints for payouts/fees and monthly summaries
-
-### Risks & Mitigations
-- **Out-of-order events**: Use event timestamps and versions; store last-processed
-- **Currency mismatches**: Default GBP; validate currency on intent and invoice
-
-### Metrics & Targets
-- 100% webhook handling success with retries; Refund SLA < 24h
-- P95 payment intent create < 400ms; zero duplicate charges

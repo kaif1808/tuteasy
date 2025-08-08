@@ -1,15 +1,23 @@
-## TutEasy Development Status
+# TutEasy Development Status (Condensed)
 
-This file is now a minimal pointer to the living status docs in `docs/status/` to optimize token usage and context loading.
+This overview points to detailed status documents under `docs/status/` for efficient token usage and contextualization.
 
-- General Overview: docs/status/README.md
-- Backend: docs/status/backend.md
-- Frontend: docs/status/frontend.md
-- Security: docs/status/security.md
-- Payments: docs/status/payments.md
-- Booking: docs/status/booking.md
-- Profiles (Tutor/Student/Parent): docs/status/profiles.md
-- Video Conferencing: docs/status/video-conferencing.md
-- UK/IB Integration: docs/status/uk-ib.md
-- Features index: docs/status/features/README.md
-- Full Archive: docs/status/ARCHIVE_FULL_DEVELOPMENT_STATUS.md
+## Detailed Status Files
+- Backend: `docs/status/backend.md`
+- Frontend: `docs/status/frontend.md`
+- Security: `docs/status/security.md`
+- Payments: `docs/status/payments.md`
+- Booking: `docs/status/booking.md`
+- Video Conferencing: `docs/status/video-conferencing.md`
+- Dashboards: `docs/status/dashboards.md`
+- UK/IB Academic Integration: `docs/status/uk-ib.md`
+- Email Service: `docs/status/email-service.md`
+- Tooling & Infrastructure: `docs/status/tooling-and-infra.md`
+- Testing & Quality: `docs/status/testing-and-quality.md`
+
+See index: `docs/status/README.md`.
+
+## At-a-glance
+- Completed: Frontend auth, role-based dashboards, UK/IB integration, backend MVP, email service, security upgrades (Dec 2024), booking UI, payment UI, parent profile backend, internal video conferencing (Aug 2025).
+- In progress: Payment processing backend (Stripe intents, data models).
+

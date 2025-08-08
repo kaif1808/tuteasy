@@ -1,48 +1,85 @@
-## Backend Status
+## Backend Development Status
 
-Last updated: 2025-08-08
+### Backend MVP (Complete)
+- User model with complete authentication fields
+- RefreshToken model for JWT refresh tokens
+- Tutor profile model with comprehensive fields
+- TutorSubject model for subject expertise (enhanced with UK/IB support)
+- TutorQualification model for credentials (enhanced with UK/IB qualifications)
+- StudentProfile model (enhanced with UK Year Groups and IB programmes)
+- Proper relationships and indexes (optimized for UK/IB queries)
+- Security-focused design with verification statuses
+- Comprehensive UK/IB educational system integration
+- Enhanced currency support with GBP defaults
+- Academic level validation constraints
 
-### Summary
-- **State**: Green — Build stable, endpoints consistent, tests passing (39+)
-- **Scope**: Auth, Profiles (Tutor/Student/Parent), Booking, Search, Payments (MVP), Video signaling, Validation, Storage, Email, Rate limiting
+### API Implementation (Complete)
+- All 12 API endpoints from PRD implemented
+- JWT authentication middleware
+- Role-based access control structure
+- File upload handling (images and documents)
+- Input validation with Zod schemas
+- Error handling and proper HTTP status codes
+- Rate limiting and security headers
 
-### Architecture & References
-- Code: `backend/src` (routes, controllers, services)
-- Schema: `backend/prisma/schema.prisma`
-- Docs: `docs/database-schema.md`, `docs/video-conferencing-architecture.md`
+### Authentication System (Complete)
+- User registration with email verification
+- Login with account lockout after failed attempts
+- Password reset functionality (request & reset)
+- Email verification endpoints
+- JWT access and refresh token management
+- Logout and token invalidation
+- Password strength requirements (bcrypt with salt rounds 12)
+- Session timeout handling
+- Token refresh on expiry
 
-### Completed
-- **Auth**: JWT access+refresh with rotation; RBAC; password reset/verify; secure cookies
-- **Security**: Per-endpoint rate limits; enumeration-safe errors; structured JSON security logs; helmet/CORS
-- **Profiles**: Tutor, Student (UK/IB), Parent CRUD; validation with Zod; completeness calc
-- **Booking**: Availability, slot selection, booking creation; timezone utilities
-- **Search**: Basic tutor search endpoints; validation and pagination
-- **Video Signaling**: Socket auth middleware; session lifecycle; Redis adapter-ready design
-- **Validation & Errors**: Centralized `validate` middleware; `AppError` with safe responses
+### Parent Profile Backend Management (Complete)
+- Validation Schema: `backend/src/validation/parentProfile.validation.ts`
+  - Comprehensive Zod validation, nested emergency contact validation, communication preference arrays
+  - Profile completeness helper; strict typing via Zod inference
+- Service Layer: `backend/src/services/parentProfile.service.ts`
+  - CRUD operations with proper error handling and JSON (de)serialization for emergency contacts
+- Controller: `backend/src/controllers/parentProfile.controller.ts`
+  - REST API handlers with Zod validation and error handling
+- Routes: `backend/src/routes/parentProfile.routes.ts`
+  - Protected routes with JWT, PARENT role required
+- Server Integration: `backend/src/server.ts`
+  - Mounted at `/api/profiles/parent`
+- Database Integration
+  - Prisma client regenerated; one-to-one relation with `User`; emergency contact stored as JSON string
 
-### Payments (MVP)
-- DB: invoices, invoice_items, transactions, payment_methods (indexed for lookups)
-- Endpoint: `POST /api/payments/create-intent` using Stripe SDK
+#### API Endpoints (ParentProfile)
+- GET `/api/profiles/parent` → 200/404/500
+- POST `/api/profiles/parent` → 201/409/400/500
+- PUT `/api/profiles/parent` → 200/404/400/500
+- DELETE `/api/profiles/parent` → 204/404/500
+- GET `/api/profiles/parent/completeness` → 200/500
 
-### Test & Quality
-- Jest unit/integration tests green (auth, booking, services, security)
-- Target: >80% coverage on critical paths; e2e flows in `src/tests/e2e`
+### Testing (Backend)
+- Service tests: `backend/src/tests/parentProfile.service.test.ts`
+- Controller tests: `backend/src/tests/parentProfile.controller.test.ts`
+- Jest infra configured; 39+ passing tests across the suite
 
-### In Progress
-- Payments webhooks (invoice/charge/payment_intent) and reconciliation pipeline
-- Curriculum-aware tutor search/matching (UK/IB filters)
+### Build Error Resolution (Complete)
+- Resolved dependency conflicts by adding `@sendgrid/mail` and `nodemailer` to `backend/package.json`
+- Corrected `emailService.ts` after dependency fix
+- Bypassed `RateLimitRequestHandler` type conflicts in `server.ts` (temporary `as any`)
+- Cleaned unused variables/imports
+- Fixed `storage.service.ts` S3 client initialization and local deletion fallback
+- Corrected Prisma mocking in tests (`jest.Mock` casting)
+- Final backend build passing
 
-### Next Milestones (2-3 weeks)
-- [ ] Implement Stripe webhook handler with signature verification and idempotency
-- [ ] Persist invoice/transaction lifecycle and reconcile on retries
-- [ ] Search: add filters for UK key stage, exam board, IB programme
-- [ ] Monitoring: integrate Sentry/APM with sampling and PII scrubbing
+### File Management (Complete)
+- Image processing with Sharp
+- Storage service abstraction (S3/Cloudinary ready)
+- Profile image upload and optimization; document uploads; deletion
 
-### Risks & Mitigations
-- **Webhook ordering/duplication**: Use idempotency keys and event versioning
-- **Timezones in booking**: Keep all persistence in UTC; convert at edges
-- **Search perf**: Add indexes; consider caching top queries in Redis
+### Code Quality & Project Structure
+- TypeScript strict mode; ESLint; Prettier
+- Environment configuration management
+- Deprecated legacy `apps/` directory → `_deprecated_apps/`
+- Root workspaces/scripts updated to use active `frontend/` and `backend/`
 
-### Metrics & Targets
-- P95 auth response < 150ms; booking create < 300ms
-- Error rate < 0.5%; 100% webhook processing success with retries
+### Next Steps (Backend)
+- Payment Processing Backend: Stripe intents and persistence models in progress (see `docs/status/payments.md`).
+

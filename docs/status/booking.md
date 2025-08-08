@@ -1,32 +1,22 @@
 ## Booking Status
 
-Last updated: 2025-08-08
+### Components (Complete)
+- `AvailabilityCalendar.tsx`: Monthly navigation, available date highlighting, selection callbacks, today indicator, disabled past dates, legend, responsive + accessible, tooltips, min/max window
+- `TimeSlotSelector.tsx`: Grouped by Morning/Afternoon/Evening, 12h format, visual indicators, selection highlight, skeletons, empty states, responsive grid, hover transitions, timezone/duration helper
+- `BookingConfirmationModal.tsx`: Full summary (tutor, subject, date/time, price), end-time calc, policies, loading during confirm, legal links, responsive buttons, accessible
 
-### Summary
-- **State**: Green — UI and backend integration for booking core complete
+### Integration (Complete)
+- `BookingPage.tsx`: Full flow (Choose Date → Choose Time → Confirm), real tutor details, dynamic slot loading, state management, two-column responsive layout, continue button gating, toasts, navigation with params
+- `BookingDemo.tsx`: Interactive showcase with mock data; `/demo/booking`
 
-### Components
-- AvailabilityCalendar: keyboard accessible navigation; available date highlighting
-- TimeSlotSelector: morning/afternoon/evening grouping; responsive layout
-- BookingConfirmationModal: summary, policies, and confirmation actions
+### Types & Validation (Complete)
+- `frontend/src/components/features/booking/types/index.ts`: `BookingDetails`, component props, `BookingDate`, `TimeSlot`
+- useToast hook; clean exports; route integration; design consistency
 
-### Integration
-- Booking page wired to tutor availability and details via backend APIs
-- React Query caching/mutations; explicit loading and error states
-- Timezone utilities ensure consistent UTC storage with local display
+### Key Features
+- Interactive calendar navigation, smart time groupings, comprehensive summary, polished UX, accessibility, mobile responsiveness, strict TypeScript
 
-### In Progress
-- Post-booking flows (email notifications, reminders)
-- Payment linkage and cancellation policy enforcement
+### Routes
+- `/book/:tutorId`
+- `/demo/booking`
 
-### Next Milestones (2-3 weeks)
-- [ ] Calendar sync with tutor constraints and holidays
-- [ ] Payment hold/confirmation handshake during booking
-- [ ] Reminder emails and cancellation windows
-
-### Risks & Mitigations
-- **Timezone confusion**: Surface user timezone; convert at edges; tests for DST
-- **Overbooking**: Transactional create with unique constraints; double-submit guard
-
-### Metrics & Targets
-- Booking success rate ≥ 98%; cancellation disputes < 1%

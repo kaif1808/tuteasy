@@ -1,36 +1,41 @@
-## Frontend Status
+## Frontend Development Status
 
-Last updated: 2025-08-08
+### Authentication System (Complete)
+- Zustand auth store with persistence
+- API service with axios interceptors (type safety improved)
+- JWT token refresh logic; authentication service layer
+- Login, Register (with password strength), Forgot/Reset Password, Verify Email Notice
+- Protected route component; `useAuth` hook
+- Complete routing setup
 
-### Summary
-- **State**: Green — Auth, Profiles, Booking, Payments UI complete; robust UX
-- **Stack**: React 18 + TypeScript (strict), React Query, Zustand, Tailwind, Vite
+### UI Components & UX (Complete)
+- Reusable `Button`, `Input`, validation with React Hook Form + Zod
+- Loading states and error handling; responsive design
 
-### Completed
-- **Auth**: Login/register/verify/reset; protected routes; dashboards
-- **Profiles**: Tutor (subjects, qualifications, uploads), Student (UK/IB forms), Parent (CRUD + completeness)
-- **Booking**: Availability calendar, time slot selector, confirmation modal; API integration
-- **Payments**: Stripe Elements (Payment/Address); billing, saved methods, invoices, refunds; validation and toasts
-- **UX**: Loading states, skeletons, error boundaries, responsive layouts
+### Profile Management Integration (Complete)
+- ParentProfileService with React Query CRUD
+- ParentProfilePage with create/update flows, 404 handling, edit mode defaults
+- Emergency contact JSON transformation; toast notifications; loading/error states
 
-### Testing
-- Vitest + RTL component tests; Playwright for core flows (selected)
-- Target: >80% coverage for forms and critical flows
+### Booking Integration (Complete)
+- BookingService with tutor details, availability, booking creation
+- BookingPage with real data, calendar and slots loading, mutation-based booking
+- Navigation and error fallbacks; professional loading/empty states
 
-### In Progress
-- Accessibility pass (keyboard navigation, ARIA, focus management)
-- Search & matching UI with UK/IB filters
+### Tutor Profile Management (Complete)
+- QualificationManager (modal CRUD, file uploads with progress, validation)
+- SubjectManager (UK curriculum and IB support, CRUD, validation)
+- ProfileImageUpload (crop, preview, upload/delete, cache invalidation)
 
-### Next Milestones (2-3 weeks)
-- [ ] a11y audit fixes (landmarks, labels, contrast, focus traps)
-- [ ] Standardize form components (errors, helper text, async validation)
-- [ ] Tutor search page with curriculum filters and pagination
-- [ ] Performance profiling and memoization for heavy lists
+### Routes Fully Integrated
+- `/tutor-profile`, `/student-profile`, `/parent-profile`
+- `/book/:tutorId`, `/find-a-tutor`
 
-### Risks & Mitigations
-- **Elements performance on low-end devices**: Lazy mount; reduce re-renders; skeletons
-- **Form complexity**: Centralize validation schemas and field components
+### Related Domains
+- Payments UI and flows are detailed in `docs/status/payments.md`.
+- Dashboards are detailed in `docs/status/dashboards.md`.
 
-### Metrics & Targets
-- First interaction < 100ms on cached; route transition < 250ms
-- Lighthouse a11y score ≥ 95; Core Web Vitals pass rate ≥ 95%
+### Next Steps
+- UI component standardization; currency display components (GBP focus)
+- Enhanced skeletons, error boundaries, accessibility improvements
+

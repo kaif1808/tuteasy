@@ -1,29 +1,23 @@
 ## Video Conferencing Status
 
-Last updated: 2025-08-08
+### Platform Overview (Complete — Aug 7, 2025)
+- WebRTC peer-to-peer audio/video with STUN/TURN
+  - Google STUN for development; configurable TURN for production
+  - Adaptive bitrate; connection quality monitoring and degradation
 
-### Summary
-- **State**: Green — WebRTC + Socket.io signaling ready; TURN/STUN configured
+### Signaling Server (Complete)
+- Socket.io-based signaling with JWT-authenticated WebSocket connections
+- Redis adapter for horizontal scaling
+- Event rate limiting; auto-reconnection with state preservation
 
-### Completed
-- Media acquisition and adaptive bitrate; graceful permission handling
-- JWT-authenticated Socket.io signaling; Redis adapter-ready for scale
-- Session lifecycle: creation, role-based start/end automation
-- Interactive whiteboard with real-time sync and drawing tools
-- Recording strategy: client-side MediaRecorder; auto-upload and processing
+### Session Management (Complete)
+- Booking-integrated session creation
+- Role-based access control (Tutor/Student/Admin)
+- Scheduling and auto start/end; participant connection tracking
 
-### In Progress
-- TURN server hardening and QoS tuning for production
-- Connection health monitoring and reconnection analytics
+### Interactive Whiteboard (Complete)
+- Real-time canvas sync; drawing tools (color/size), text and shapes, snapshot/history management
 
-### Next Milestones (2-3 weeks)
-- [ ] Periodic ICE restarts and network quality adaptation policies
-- [ ] Aggregate quality metrics dashboard (packet loss, RTT, bitrate)
-- [ ] Data retention and consent workflows for recordings
+### Session Recording (Complete)
+- Client-side recording via MediaRecorder API; automatic upload to cloud storage; processing pipeline
 
-### Risks & Mitigations
-- **NAT traversal failures**: Multiple TURN relays; fallback strategies
-- **Recording privacy**: Consent gates, retention policies, and access controls
-
-### Metrics & Targets
-- Call drop rate < 2%; reconnect success > 95%; whiteboard latency < 150ms
