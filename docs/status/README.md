@@ -21,6 +21,7 @@ Last updated: 2025-08-08
 - [Profiles](./profiles.md)
 - [Video Conferencing](./video-conferencing.md)
 - [UK/IB Integration](./uk-ib.md)
+- [Features](./features/README.md)
 - [Full Archive (original long-form)](./ARCHIVE_FULL_DEVELOPMENT_STATUS.md)
 
 ### How to use

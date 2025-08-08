@@ -15,6 +15,7 @@ Updated: 2025-08-08
 - [Profiles (Tutor/Student/Parent)](docs/status/profiles.md)
 - [Video Conferencing](docs/status/video-conferencing.md)
 - [UK/IB Integration](docs/status/uk-ib.md)
+- [Features](docs/status/features/README.md)
 - [Full Archive (original long-form)](docs/status/ARCHIVE_FULL_DEVELOPMENT_STATUS.md)
 
 ### Current Highlights
