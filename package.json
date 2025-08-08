@@ -1,27 +1,18 @@
 {
-  "name": "tuteasy-rovo-mcp",
+  "name": "tuteasy-mcp",
   "version": "1.0.0",
-  "description": "MCP Server for Rovo Dev Agent integration with Cursor",
+  "description": "MCP Server integration for Cursor",
   "type": "module",
   "main": "dist/server.js",
-  "bin": {
-    "tuteasy-rovo-mcp": "dist/server.js"
-  },
   "scripts": {
     "build": "tsc",
-    "start": "node dist/mcp-server.js",
-    "dev": "tsx src/mcp-server.ts",
     "test": "npm run build && vitest",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage",
     "clean": "rm -rf dist",
     "prebuild": "npm run clean"
   },
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.11.2",
-    "cookie-parser": "^1.4.7",
-    "zod": "^3.24.4"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/cookie-parser": "^1.4.9",
     "@types/node": "^22.15.17",
@@ -31,9 +22,6 @@
     "vitest": "^2.1.8"
   },
   "keywords": [
-    "mcp",
-    "model-context-protocol",
-    "rovo-dev",
     "cursor",
     "ai",
     "tutoring-platform"
