@@ -1,4 +1,4 @@
-## Project Development Status (Detailed Overview)
+## Project Development Status (Condensed Overview)
 
 Last updated: 2025-08-08
 
@@ -23,6 +23,19 @@ Last updated: 2025-08-08
 - [UK/IB Integration](./uk-ib.md)
 - [Features](./features/README.md)
 - [Full Archive (original long-form)](./ARCHIVE_FULL_DEVELOPMENT_STATUS.md)
+
+### Current Highlights
+- Payments (FE): Stripe Elements flow end-to-end with billing, history, invoices, refunds; robust validation and UX.
+- Backend: Auth, profiles, booking, search, and validation in place; parent profile API complete; payments backend MVP started.
+- Security: Rate limiting by endpoint, secure HttpOnly cookies for refresh tokens, enumeration-safe errors, security logging.
+- Video: WebRTC + Socket.io signaling with TURN/STUN support; session lifecycle; whiteboard and recording features.
+- UK/IB: Comprehensive types, validation, and UI; migration strategy documented.
+
+### Next Steps
+- Staging validation: Deploy and exercise security + video features.
+- Payments (BE): Expand beyond create-intent; invoices/transactions webhooks and reconciliation.
+- Search & Matching: Curriculum-aware tutor filtering (UK/IB).
+- UX polish: Component standardization, accessibility, and skeleton states.
 
 ### How to use
 - Update the per-area file when progress is made; keep this overview concise.
