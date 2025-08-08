@@ -1,14 +1,18 @@
-## General Project Development Status (Condensed)
+## Project Development Status (Detailed Overview)
 
-This page summarizes overall progress. For specifics, see the linked area pages.
+Last updated: 2025-08-08
 
-### Overall
-- **Green build** on backend; frontend fully integrated with profiles, booking, payments
-- **Security** hardening complete (rate limits, HttpOnly cookies, safe errors, security logs)
-- **Video conferencing** production-ready (WebRTC + Socket.io)
-- **UK/IB** educational support end-to-end (schema, validation, UI)
+### Status at a glance
+- **Backend**: Green — APIs stable; expanding payments; search/matching next
+- **Frontend**: Green — Core features shipped; a11y polish and search next
+- **Security**: Green — Hardening complete; staging monitoring next
+- **Payments**: Amber — FE complete; BE webhooks & reconciliation in progress
+- **Booking**: Green — Calendar/slots/confirmation integrated
+- **Profiles**: Green — Tutor/Student/Parent complete with validation
+- **Video Conferencing**: Green — WebRTC signaling + TURN/STUN ready
+- **UK/IB Integration**: Green — Types/validation/UI complete; matching next
 
-### Key Areas
+### Quick Links (Per-area detailed status)
 - [Backend](./backend.md)
 - [Frontend](./frontend.md)
 - [Security](./security.md)
@@ -19,15 +23,11 @@ This page summarizes overall progress. For specifics, see the linked area pages.
 - [UK/IB Integration](./uk-ib.md)
 - [Full Archive (original long-form)](./ARCHIVE_FULL_DEVELOPMENT_STATUS.md)
 
-### Recent Highlights
-- FE payments completed with Elements, billing, invoices, refunds, toasts, and validation
-- Parent Profile API and FE integrated with CRUD, completeness, and robust validation
-- Tutor/Student profile managers feature-complete incl. uploads, UK exam boards, and IB
-- Booking components (calendar, time slots, confirmation) integrated with real data
-- Advanced security middleware deployed across auth routes
+### How to use
+- Update the per-area file when progress is made; keep this overview concise.
+- Include “Next Milestones”, “Risks”, and “Metrics” in each area for clarity.
 
-### Upcoming
-- Payments backend expansion and webhook-based reconciliation
-- Tutor search/matching with UK/IB filters
-- Accessibility and UI standardization
-- Staging deployment and monitoring setup
+### References
+- Database schema: `docs/database-schema.md`
+- Video architecture: `docs/video-conferencing-architecture.md`
+- Deployment env vars: `docs/deployment/environment-variables.md`

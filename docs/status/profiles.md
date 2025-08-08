@@ -1,19 +1,35 @@
 ## Profiles Status (Tutor / Student / Parent)
 
-### Tutor (Complete)
-- Subjects manager with UK exam boards + IB; qualification levels
-- Qualifications manager with uploads and verification status
-- Profile image upload with cropping and processing
+Last updated: 2025-08-08
 
-### Student (Complete, UK/IB)
+### Summary
+- **State**: Green — All three profiles complete with validation and UI
+
+### Tutor
+- Subjects manager: UK exam boards + IB; qualification levels
+- Qualifications: uploads with processing and verification status
+- Profile image upload with cropping and server-side processing
+
+### Student (UK/IB)
 - UK Year Groups + Key Stages; IB programmes with SL/HL
 - Subject interests with exam boards and target grades
 - Advanced validation and progression checks
 
-### Parent (Complete)
+### Parent
 - CRUD with emergency contact (JSON), communication preferences, timezone
-- Completeness calculation and robust validation
+- Completeness calculation with robust validation
 
-### Next
-- Profile dashboards and cross-profile navigation
-- Analytics and reporting for progress/completeness
+### In Progress
+- Cross-profile navigation improvements and dashboard rollups
+
+### Next Milestones (2-3 weeks)
+- [ ] Profile dashboards summarizing completeness and next actions
+- [ ] Analytics/reporting for profile progress over time
+- [ ] Unified photo/document storage policies and quotas
+
+### Risks & Mitigations
+- **Data inconsistency**: Single source of truth in DB; validation on read/write
+- **Uploads security**: Strict file validation, scanning, and content-type checks
+
+### Metrics & Targets
+- ≥ 95% profiles reach completeness; upload error rate < 0.5%
